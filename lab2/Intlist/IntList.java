@@ -99,7 +99,7 @@ public class IntList {
         if (B == null){
             return new IntList(A.first, A.rest);
         } else if (A == null) {
-            return new IntList(B.first, B.rest);
+            return B;
         }
         return new IntList(A.first, catenate(A.rest, B));       //recursion again
     }
