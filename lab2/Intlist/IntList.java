@@ -97,7 +97,7 @@ public class IntList {
     public static IntList catenate(IntList A, IntList B) {
         //TODO:  fill in method
         if (B == null){
-            return new IntList(A.first, A.rest);
+            return A;
         } else if (A == null) {
             return B;
         }
