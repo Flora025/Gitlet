@@ -84,10 +84,11 @@ public class ArrayDequeTest {
 
         int n;
         for (n = 0; n < 17; n += 1) {
-            ad2.addLast(n);
+            ad2.addFirst(n);
+            ad2.addFirst(n+1);
+            ad2.removeLast();
         } // 0 1 2 3 4 5 6 7 8 0 0...
-        first = ad2.removeFirst();
-        last = ad2.removeLast();
+
 
         System.out.println("Printing out deque2: ");
         ad2.printDeque();
@@ -98,6 +99,9 @@ public class ArrayDequeTest {
 
         System.out.println("Printing out deque1: ");
         ad1.printDeque();
+
+
+
 
         printTestStatus(passed);
 

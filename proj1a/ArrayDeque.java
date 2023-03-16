@@ -7,27 +7,37 @@ public class ArrayDeque<T> {
     private double R;
 
 
-    // test 0 0 0 0 0 len = 5
     /** Creates an empty linked list deque. */
     public ArrayDeque() {
         size = 0;
         items = (T[]) new Object[8];
-        // like this: Glorp[] items = (Glorp []) new Object[8];
         nextFirst = items.length - 1;
         nextLast = 0;
+    }
+
+    /** moves one position front */
+    private int moveOneFront(int nextWhat) {
+        if (nextWhat == 0) {
+            return items.length - 1;
+        } else {
+            return nextWhat - 1;
+        }
+    }
+
+    /** moves one position back */
+    private int moveOneBack(int nextWhat) {
+        if (nextWhat == items.length - 1) {
+            return 0;
+        } else {
+            return nextWhat + 1;
+        }
     }
 
     /** Adds an item of type T to the front of the deque */
     public void addFirst(T item) {
         ifFullThenResize(size * 2);
-
         items[nextFirst] = item;
-        if (nextFirst == 0) {
-            nextFirst = items.length - 1;
-        } else {
-            nextFirst -= 1;
-        }
-
+        nextFirst = moveOneFront(nextFirst);
         size += 1;
     }
 
@@ -35,13 +45,8 @@ public class ArrayDeque<T> {
      * must not use loop or recursion! */
     public void addLast(T item) {
         ifFullThenResize(size * 2);
-
         items[nextLast] = item;
-        if (nextLast == items.length - 1) {
-            nextLast = 0;
-        } else {
-            nextLast += 1;
-        }
+        nextLast = moveOneBack(nextLast);
         size += 1;
     }
 
@@ -68,23 +73,17 @@ public class ArrayDeque<T> {
     /** Removes and returns the item at the front of the deque.
      * If no such item exists, returns null. */
     public T removeFirst() {
-        saveMemory();
-
-        int removeIndex;
+        //saveMemory();
         if (isEmpty()) {
             return null;
         }
-        if (nextFirst == items.length - 1) {
-            removeIndex = 0;
-        } else {
-            removeIndex = nextFirst + 1;
-        }
 
-        T returnItem = items[removeIndex];
-        items[removeIndex] = null;
+        int removeIndex;
+        removeIndex = moveOneBack(nextFirst);
         nextFirst = removeIndex;
+
         size -= 1;
-        return returnItem;
+        return items[removeIndex];
 
     }
 
@@ -94,22 +93,17 @@ public class ArrayDeque<T> {
     /** Removes and returns the item at the back of the deque.
      * If no such item exists, returns null.*/
     public T removeLast() {
-        saveMemory();
-
-        int removeIndex;
+        //saveMemory();
         if (isEmpty()) {
             return null;
         }
-        if (nextLast == 0) {
-            removeIndex = items.length - 1;
-        } else {
-            removeIndex = nextLast - 1;
-        }
-        T returnItem = items[removeIndex];
-        items[removeIndex] = null;
+
+        int removeIndex;
+        removeIndex = moveOneFront(nextLast);
         nextLast = removeIndex;
+
         size -= 1;
-        return returnItem;
+        return items[removeIndex];
     }
 
     /** Gets the item at the given index, where 0 is the front, 1 is the next item, and so forth
