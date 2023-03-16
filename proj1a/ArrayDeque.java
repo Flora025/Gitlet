@@ -1,8 +1,8 @@
 public class ArrayDeque<T> {
 
     private int size;
-    private int nextFirst = 0;
-    private int nextLast = 1;
+    private int nextFirst;
+    private int nextLast;
     private T[] items;
     private double R;
 
@@ -13,6 +13,8 @@ public class ArrayDeque<T> {
         size = 0;
         items = (T[]) new Object[8];
         // like this: Glorp[] items = (Glorp []) new Object[8];
+        nextFirst = items.length -1;
+        nextLast = 0;
     }
 
     /** Adds an item of type T to the front of the deque */
@@ -137,7 +139,7 @@ public class ArrayDeque<T> {
         R = Math.round(size * 100 / items.length) / 100.0;
         // 4 5 6 0 0 0
         if (R < 0.25) {
-            T[] des = (T[]) new Object[size / 2];
+            T[] des = (T[]) new Object[size / 2 + 1];
             System.arraycopy(items, 0, des, 0, size);
         }
     }

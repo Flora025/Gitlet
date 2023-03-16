@@ -18,13 +18,20 @@ public class ArrayDequeTest {
         return true;
     }
 
+    private static boolean checkGet(String expected, String actual) {
+        if (!expected.equals(actual)) {
+            System.out.println("size() returned <" + actual + ">, but expected: <" + expected);
+            return false;
+        }
+        return true;
+    }
     /* Prints a nice message based on whether a test passed.
      * The \n means newline. */
     public static void printTestStatus(boolean passed) {
         if (passed) {
-            System.out.println("Test passed!\n");
+            System.out.println("\nTest passed!\n");
         } else {
-            System.out.println("Test failed!\n");
+            System.out.println("\nTest failed!\n");
         }
     }
 
@@ -39,18 +46,26 @@ public class ArrayDequeTest {
 
         boolean passed = checkEmpty(true, ad1.isEmpty());
 
-        ad1.addFirst("front");
+        ad1.addFirst("0");
 
         // The && operator is the same as "and" in Python.
         // It's a binary operator that returns true if both arguments true, and false otherwise.
         passed = checkSize(1, ad1.size()) && passed;
         passed = checkEmpty(false, ad1.isEmpty()) && passed;
 
-        ad1.addLast("middle");
+        ad1.addLast("1");
         passed = checkSize(2, ad1.size()) && passed;
 
-        ad1.addLast("back");
+        ad1.addLast("2");
         passed = checkSize(3, ad1.size()) && passed;
+
+        //my test: test AD.addFirst() and AD.addLast()
+
+        for (int i = 0; i < 100; i += 1) {
+            ad1.addLast("3");
+        }
+        passed = checkSize(103, ad1.size()) && passed;
+        passed = checkGet("1", ad1.get(0)) && passed;
 
         System.out.println("Printing out deque: ");
         ad1.printDeque();
@@ -64,7 +79,6 @@ public class ArrayDequeTest {
 
         System.out.println("Running add/remove test.");
 
-        // System.out.println("Make sure to uncomment the lines below (and delete this print statement).");
 
         ArrayDeque<Integer> ad1 = new ArrayDeque<Integer>();
         // should be empty
