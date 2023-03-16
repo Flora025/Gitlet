@@ -36,8 +36,13 @@ public class ArrayDeque<T> {
 
     /** Adds an item of type T to the front of the deque */
     public void addFirst(T item) {
-        ifFullThenResize(size * 2);
-        nextFirst = moveOneFront(nextFirst);
+        if (size == items.length) {
+            resize(size * 2);
+            nextFirst = items.length - 1;
+            nextLast = size;
+        } else {
+            nextFirst = moveOneFront(nextFirst);
+        }
         items[nextFirst] = item;
         size += 1;
     }
@@ -45,7 +50,11 @@ public class ArrayDeque<T> {
     /** Adds an item of type T to the back of the deque.
      * must not use loop or recursion! */
     public void addLast(T item) {
-        ifFullThenResize(size * 2);
+        if (size == items.length) {
+            resize(size * 2);
+            nextFirst = items.length - 1;
+            nextLast = size;
+        }
         items[nextLast] = item;
         nextLast = moveOneBack(nextLast);
         size += 1;
@@ -78,8 +87,10 @@ public class ArrayDeque<T> {
         if (isEmpty()) {
             return null;
         }
-        T returnItem = items[nextFirst];
+
         nextFirst = moveOneBack(nextFirst);
+        T returnItem = items[nextFirst];
+        items[nextFirst] = null;
         size -= 1;
         return returnItem;
 
@@ -117,7 +128,7 @@ public class ArrayDeque<T> {
     private void ifFullThenResize(int capacity) {
         if (size == items.length) {
             resize(capacity);
-            nextFirst = items.length;
+            nextFirst = items.length - 1;
             nextLast = size;
         }
     }

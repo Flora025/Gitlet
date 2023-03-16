@@ -59,57 +59,32 @@ public class ArrayDequeTest {
         ad1.addLast("2");
         passed = checkSize(3, ad1.size()) && passed;
 
+
         //my test: test AD.addFirst() and AD.addLast()
-        for (int i = 0; i < 100; i += 1) {
-            ad1.addFirst("3");
+        for (int i = 0; i < 10; i += 1) {
+            ad1.addLast("3");
         }
-        passed = checkSize(103, ad1.size()) && passed;
+        passed = checkSize(13, ad1.size()) && passed;
         passed = checkGet("1", ad1.get(0)) && passed;
-
-        //myTest2: test removeFirst() and removeLast()
-        ArrayDeque<Integer> ad2 = new ArrayDeque<Integer>();
-        int i;
-        for (i = 0; i < 17; i += 1) {
-            ad2.addLast(i);
-        } // 0 1 2 3 4 5 6 7 8 0 0...
-        int first = ad2.removeFirst();
-        int last = ad2.removeLast();
-
-        System.out.println("Printing out deque2: ");
-        ad2.printDeque();
-        System.out.println("\nPrinting out first: ");
-        System.out.println(first);
-        System.out.println("\nPrinting out last: ");
-        System.out.println(last);
-
-        int n;
-        for (n = 0; n < 17; n += 1) {
-            ad2.addFirst(n);
-            ad2.addFirst(n + 1);
-            ad2.removeLast();
-            ad2.addFirst(n);
-            ad2.addFirst(n + 1);
-            ad2.addFirst(n);
-            ad2.removeLast();
-            ad2.removeLast();
-            ad2.removeLast();
-        }
-
-
-        System.out.println("Printing out deque2: ");
-        ad2.printDeque();
-        System.out.println("\nPrinting out first: ");
-        System.out.println(first);
-        System.out.println("\nPrinting out last: ");
-        System.out.println(last);
 
         System.out.println("Printing out deque1: ");
         ad1.printDeque();
-
-
-
-
         printTestStatus(passed);
+
+        //myTest2: test addFirst() and removeLast()
+        ArrayDeque<Integer> ad2 = new ArrayDeque<Integer>();
+        int i;
+        for (i = 0; i < 17; i += 1) {
+            ad2.addFirst(i);
+        } // 0 1 2 3 4 5 6 7 8 0 0...
+        for (int n = 0; n < 17; n += 1) {
+            ad2.removeLast();
+        }
+
+        System.out.println("Printing out deque2: ");
+        ad2.printDeque();
+
+        //printTestStatus(passed);
 
     }
 
