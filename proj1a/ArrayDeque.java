@@ -13,7 +13,7 @@ public class ArrayDeque<T> {
         size = 0;
         items = (T[]) new Object[8];
         // like this: Glorp[] items = (Glorp []) new Object[8];
-        nextFirst = items.length -1;
+        nextFirst = items.length - 1;
         nextLast = 0;
     }
 
@@ -75,9 +75,10 @@ public class ArrayDeque<T> {
         if (nextFirst == items.length - 1) {
             removeIndex = 0;
         } else {
-            removeIndex = nextLast + 1;
+            removeIndex = nextFirst + 1;
         }
         T returnItem = items[removeIndex];
+        items[removeIndex] = null;
         nextFirst = removeIndex;
         size -= 1;
         return returnItem;
@@ -99,6 +100,7 @@ public class ArrayDeque<T> {
             removeIndex = nextLast - 1;
         }
         T returnItem = items[removeIndex];
+        items[removeIndex] = null;
         nextLast = removeIndex;
         size -= 1;
         return returnItem;
