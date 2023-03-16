@@ -117,7 +117,7 @@ public class ArrayDeque<T> {
     private void ifFullThenResize(int capacity) {
         if (size == items.length) {
             resize(capacity);
-            nextFirst = items.length - 1;
+            nextFirst = items.length;
             nextLast = size;
         }
     }
