@@ -72,11 +72,15 @@ public class ArrayDeque<T> {
         saveMemory();
 
         int removeIndex;
+        if (isEmpty()) {
+            return null;
+        }
         if (nextFirst == items.length - 1) {
             removeIndex = 0;
         } else {
             removeIndex = nextFirst + 1;
         }
+
         T returnItem = items[removeIndex];
         items[removeIndex] = null;
         nextFirst = removeIndex;
@@ -94,6 +98,9 @@ public class ArrayDeque<T> {
         saveMemory();
 
         int removeIndex;
+        if (isEmpty()) {
+            return null;
+        }
         if (nextLast == 0) {
             removeIndex = items.length - 1;
         } else {
@@ -114,9 +121,17 @@ public class ArrayDeque<T> {
         if (this.isEmpty()) {
             return null;
         }
-        return items[index];
+        return items[index + 1 + nextFirst];
     }
 
+    /*
+    0 1 2 3 4 (index)
+    5 1 2 3 4 -> [1, 2, 3, 4, 5]
+    assume: get(2) expected = int 3
+    conditions: nextFirst = 0
+    actualIndex = nextF + 1 + index
+
+     */
     /** helps to judge if the array is full and initialize indexes.
      * if so, automatically implements RESIZE().
      * to use: ifFullThenResize(size * 2);
@@ -141,7 +156,7 @@ public class ArrayDeque<T> {
         R = Math.round(size * 100 / items.length) / 100.0;
         // 4 5 6 0 0 0
         if (R < 0.25) {
-            T[] des = (T[]) new Object[size / 2 + 1];
+            T[] des = (T[]) new Object[items.length / 2 + 1];
             System.arraycopy(items, 0, des, 0, size);
         }
     }
