@@ -36,7 +36,10 @@ public class ArrayDeque<T> {
 
     /** Adds an item of type T to the front of the deque */
     public void addFirst(T item) {
-        ifFullThenResize(size * 2);
+        if (size == items.length) {
+            resize(items.length * 2);
+        }
+
         items[nextFirst] = item;
         nextFirst = moveOneFront(nextFirst);
         size += 1;
@@ -45,7 +48,10 @@ public class ArrayDeque<T> {
     /** Adds an item of type T to the back of the deque.
      * must not use loop or recursion! */
     public void addLast(T item) {
-        ifFullThenResize(size * 2);
+        if (size == items.length) {
+            resize(items.length * 2);
+        }
+
         items[nextLast] = item;
         nextLast = moveOneBack(nextLast);
         size += 1;
@@ -118,17 +124,6 @@ public class ArrayDeque<T> {
         return items[(index + nextFirst + 1) % items.length];
     }
 
-    /** helps to judge if the array is full and initialize indexes.
-     * if so, automatically implements RESIZE().
-     * to use: ifFullThenResize(size * 2);
-     */
-    private void ifFullThenResize(int capacity) {
-        if (size == items.length) {
-            resize(capacity);
-            nextFirst = 0;
-            nextLast = size + 1;
-        }
-    }
 
     /** resize the array (from the front / back) */
     private void resize(int capacity) {
@@ -136,6 +131,8 @@ public class ArrayDeque<T> {
         for (int i = 1; i <= size; i += 1) {
             des[i] = items[(nextFirst + 1) % capacity];
         }
+        nextFirst = 0;
+        nextLast = size + 1;
         items = des;
     }
 }
