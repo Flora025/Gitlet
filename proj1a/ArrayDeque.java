@@ -26,6 +26,7 @@ public class ArrayDeque<T> {
 
     /** moves one position back */
     private int moveOneBack(int nextWhat) {
+        nextWhat %= items.length;
         if (nextWhat == items.length - 1) {
             return 0;
         } else {
@@ -78,12 +79,9 @@ public class ArrayDeque<T> {
             return null;
         }
 
-        int removeIndex;
-        removeIndex = moveOneBack(nextFirst);
-        nextFirst = removeIndex;
-
+        nextFirst = moveOneBack(nextFirst);
         size -= 1;
-        return items[removeIndex];
+        return items[nextFirst];
 
     }
 
@@ -98,12 +96,9 @@ public class ArrayDeque<T> {
             return null;
         }
 
-        int removeIndex;
-        removeIndex = moveOneFront(nextLast);
-        nextLast = removeIndex;
-
+        nextLast = moveOneFront(nextLast);
         size -= 1;
-        return items[removeIndex];
+        return items[nextLast];
     }
 
     /** Gets the item at the given index, where 0 is the front, 1 is the next item, and so forth
@@ -146,7 +141,7 @@ public class ArrayDeque<T> {
         // calculate usage ratio
         R = Math.round(size * 100 / items.length) / 100.0;
         // 4 5 6 0 0 0
-        if (R < 0.25) {
+        if (items.length >= 16 && R < 0.25) {
             T[] des = (T[]) new Object[items.length / 2];
             System.arraycopy(items, 0, des, 0, size);
         }

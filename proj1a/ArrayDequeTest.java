@@ -85,9 +85,15 @@ public class ArrayDequeTest {
         int n;
         for (n = 0; n < 17; n += 1) {
             ad2.addFirst(n);
-            ad2.addFirst(n+1);
+            ad2.addFirst(n + 1);
             ad2.removeLast();
-        } // 0 1 2 3 4 5 6 7 8 0 0...
+            ad2.addFirst(n);
+            ad2.addFirst(n + 1);
+            ad2.addFirst(n);
+            ad2.removeLast();
+            ad2.removeLast();
+            ad2.removeLast();
+        }
 
 
         System.out.println("Printing out deque2: ");
