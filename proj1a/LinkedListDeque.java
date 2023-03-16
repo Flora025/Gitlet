@@ -6,46 +6,39 @@
 
 public class LinkedListDeque<T> {
 
-    public class itemNode {
-        public itemNode prev;
-        public T item;
-        public itemNode next;
+    private class ItemNode {
+        private ItemNode prev;
+        private T item;
+        private ItemNode next;
 
-        public itemNode(itemNode p, T i, itemNode n) {
+        public ItemNode(ItemNode p, T i, ItemNode n) {
             prev = p;
             item = i;
             next = n;
         }
     }
 
-    int size;
-    itemNode sentinel;
+    private int size;
+    private ItemNode sentinel;
 
     /** Creates an empty linked list deque. */
     public LinkedListDeque() {
         size = 0;
-        sentinel = new itemNode(sentinel, null, sentinel);
+        sentinel = new ItemNode(sentinel, null, sentinel);
     }
 
     /** Adds an item of type T to the front of the deque */
     public void addFirst(T item) {
-        sentinel.next = new itemNode(sentinel, item, sentinel.next);
+        sentinel.next = new ItemNode(sentinel, item, sentinel.next);
         sentinel.prev = sentinel.next;        // update the original 1st node's prev
         size += 1;
     }
 
     /** Adds an item of type T to the back of the deque.
      * must not use loop or recursion! */
-    public void addLast (T item) {
-//        itemNode p = sentinel;          // finds the current last node p
-//        while ((p.next.equals(sentinel))) {         //be careful with the circular structure...
-//            p = p.next;
-//        }
-//        p.next = new itemNode(p, item, sentinel);
-//        sentinel.prev = p.next;         // update the last node (new end of circle)
-
-        itemNode curLast = sentinel.prev;
-        sentinel.prev = new itemNode(curLast, item, sentinel);
+    public void addLast(T item) {
+        ItemNode curLast = sentinel.prev;
+        sentinel.prev = new ItemNode(curLast, item, sentinel);
         curLast.next = sentinel.prev;
         size += 1;
     }
@@ -62,8 +55,8 @@ public class LinkedListDeque<T> {
 
     /** Prints the items in the deque from first to last, separated by a space. */
     public void printDeque() {
-        itemNode p =sentinel;
-        for (int i=0; i<size; i += 1) {
+        ItemNode p = sentinel;
+        for (int i = 0; i < size; i += 1) {
             p = p.next;
             System.out.print(p.item);
             System.out.print(' ');
@@ -73,11 +66,11 @@ public class LinkedListDeque<T> {
 
     /** Removes and returns the item at the front of the deque.
      * If no such item exists, returns null. */
-    public T removeFirst(){
+    public T removeFirst() {
         if (sentinel.next.equals(sentinel)) {
             return null;
         }
-        itemNode front = sentinel.next;
+        ItemNode front = sentinel.next;
         sentinel.next = front.next;
         front.prev = sentinel;
 
@@ -91,7 +84,7 @@ public class LinkedListDeque<T> {
         if (sentinel.prev.equals(sentinel)) {
             return null;
         }
-        itemNode back = sentinel.prev;
+        ItemNode back = sentinel.prev;
         sentinel.prev = back.prev;
         back.next = sentinel;
 
@@ -106,9 +99,9 @@ public class LinkedListDeque<T> {
       */
     public T get(int index) {
         int i;
-        itemNode p = sentinel;
+        ItemNode p = sentinel;
 
-        for (i = 0; i<index; i+=1) {
+        for (i = 0; i < index; i += 1) {
             if (p.next.equals(sentinel)) {      // if P is the last item
                 return null;
             }
@@ -119,7 +112,7 @@ public class LinkedListDeque<T> {
     }
 
     /** helper function that creates a pointer P */
-    private T getRecurHelper(itemNode p, int index) {
+    private T getRecurHelper(ItemNode p, int index) {
         if (p.next.equals(sentinel)) {          // handles index out of range
             return null;
         } else if (index == 0) {

@@ -1,10 +1,10 @@
 public class ArrayDeque<T> {
 
-    int size;
-    int nextFirst = 0;
-    int nextLast = 1;
-    T[] items;
-    double R;
+    private int size;
+    private int nextFirst = 0;
+    private int nextLast = 1;
+    private T[] items;
+    private double R;
 
 
     // test 0 0 0 0 0 len = 5
@@ -30,7 +30,7 @@ public class ArrayDeque<T> {
 
     /** Adds an item of type T to the back of the deque.
      * must not use loop or recursion! */
-    public void addLast (T item) {
+    public void addLast(T item) {
         ifFullThenResize(size * 2);
 
         items[nextLast] = item;
@@ -66,7 +66,7 @@ public class ArrayDeque<T> {
 
     /** Removes and returns the item at the front of the deque.
      * If no such item exists, returns null. */
-    public T removeFirst(){
+    public T removeFirst() {
         saveMemory();
 
         int removeIndex;
@@ -126,18 +126,18 @@ public class ArrayDeque<T> {
     }
 
     /** resize the array (from the front / back) */
-    public void resize(int capacity) {
+    private void resize(int capacity) {
         T[] des = (T[]) new Object[capacity];
         System.arraycopy(items, 0, des, 0, size);
         items = des;
     }
 
-    public void saveMemory() {
+    private void saveMemory() {
         // calculate usage ratio
-        R = Math.round(size*100 / items.length)/100.0;
+        R = Math.round(size * 100 / items.length) / 100.0;
         // 4 5 6 0 0 0
         if (R < 0.25) {
-            T[] des = (T[]) new Object[size/2];
+            T[] des = (T[]) new Object[size / 2];
             System.arraycopy(items, 0, des, 0, size);
         }
     }
