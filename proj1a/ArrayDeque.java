@@ -27,6 +27,7 @@ public class ArrayDeque<T> {
         } else {
             nextFirst -= 1;
         }
+
         size += 1;
     }
 
@@ -63,8 +64,6 @@ public class ArrayDeque<T> {
             }
         }
     }
-
-
 
     /** Removes and returns the item at the front of the deque.
      * If no such item exists, returns null. */
@@ -121,17 +120,15 @@ public class ArrayDeque<T> {
         if (this.isEmpty()) {
             return null;
         }
-        return items[index + 1 + nextFirst];
+        int startIndex = nextFirst;
+        if (startIndex == items.length - 1) {
+            startIndex = 0;
+        } else {
+            startIndex += 1;
+        }
+        return items[(index + startIndex) % items.length];
     }
 
-    /*
-    0 1 2 3 4 (index)
-    5 1 2 3 4 -> [1, 2, 3, 4, 5]
-    assume: get(2) expected = int 3
-    conditions: nextFirst = 0
-    actualIndex = nextF + 1 + index
-
-     */
     /** helps to judge if the array is full and initialize indexes.
      * if so, automatically implements RESIZE().
      * to use: ifFullThenResize(size * 2);
