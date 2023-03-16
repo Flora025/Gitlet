@@ -11,7 +11,7 @@ public class ArrayDeque<T> {
     public ArrayDeque() {
         size = 0;
         items = (T[]) new Object[8];
-        nextFirst = items.length - 1;
+        nextFirst = 0;
         nextLast = 0;
     }
 
@@ -37,8 +37,8 @@ public class ArrayDeque<T> {
     /** Adds an item of type T to the front of the deque */
     public void addFirst(T item) {
         ifFullThenResize(size * 2);
-        items[nextFirst] = item;
         nextFirst = moveOneFront(nextFirst);
+        items[nextFirst] = item;
         size += 1;
     }
 
@@ -78,16 +78,13 @@ public class ArrayDeque<T> {
         if (isEmpty()) {
             return null;
         }
-
+        T returnItem = items[nextFirst];
         nextFirst = moveOneBack(nextFirst);
         size -= 1;
-        return items[nextFirst];
+        return returnItem;
 
     }
 
-    // 0 1 2 3 4 5(index)
-    // 0 8 9 0 0 0
-    // nextF = 0, nextL = 3
     /** Removes and returns the item at the back of the deque.
      * If no such item exists, returns null.*/
     public T removeLast() {
@@ -109,12 +106,7 @@ public class ArrayDeque<T> {
         if (this.isEmpty()) {
             return null;
         }
-        int startIndex = nextFirst;
-        if (startIndex == items.length - 1) {
-            startIndex = 0;
-        } else {
-            startIndex += 1;
-        }
+        int startIndex = moveOneBack(nextFirst);
         return items[(index + startIndex) % items.length];
     }
 
