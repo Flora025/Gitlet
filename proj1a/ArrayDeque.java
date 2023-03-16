@@ -11,7 +11,7 @@ public class ArrayDeque<T> {
     public ArrayDeque() {
         size = 0;
         items = (T[]) new Object[8];
-        nextFirst = 0;
+        nextFirst = items.length - 1;
         nextLast = 0;
     }
 
@@ -36,25 +36,16 @@ public class ArrayDeque<T> {
 
     /** Adds an item of type T to the front of the deque */
     public void addFirst(T item) {
-        if (size == items.length) {
-            resize(size * 2);
-            nextFirst = items.length - 1;
-            nextLast = size;
-        } else {
-            nextFirst = moveOneFront(nextFirst);
-        }
+        ifFullThenResize(size * 2);
         items[nextFirst] = item;
+        nextFirst = moveOneFront(nextFirst);
         size += 1;
     }
 
     /** Adds an item of type T to the back of the deque.
      * must not use loop or recursion! */
     public void addLast(T item) {
-        if (size == items.length) {
-            resize(size * 2);
-            nextFirst = items.length - 1;
-            nextLast = size;
-        }
+        ifFullThenResize(size * 2);
         items[nextLast] = item;
         nextLast = moveOneBack(nextLast);
         size += 1;
@@ -83,7 +74,6 @@ public class ArrayDeque<T> {
     /** Removes and returns the item at the front of the deque.
      * If no such item exists, returns null. */
     public T removeFirst() {
-        //saveMemory();
         if (isEmpty()) {
             return null;
         }
@@ -92,21 +82,29 @@ public class ArrayDeque<T> {
         T returnItem = items[nextFirst];
         items[nextFirst] = null;
         size -= 1;
+        if (items.length >= 16 && items.length / size > 4) {
+            resize(items.length / 2);
+        }
         return returnItem;
-
     }
 
     /** Removes and returns the item at the back of the deque.
      * If no such item exists, returns null.*/
     public T removeLast() {
-        //saveMemory();
+
         if (isEmpty()) {
             return null;
         }
 
         nextLast = moveOneFront(nextLast);
+        T returnItem = items[nextLast];
+        items[nextLast] = null;
         size -= 1;
-        return items[nextLast];
+        // save memp
+        if (items.length >= 16 && items.length / size > 4) {
+            resize(items.length / 2);
+        }
+        return returnItem;
     }
 
     /** Gets the item at the given index, where 0 is the front, 1 is the next item, and so forth
@@ -117,8 +115,7 @@ public class ArrayDeque<T> {
         if (this.isEmpty()) {
             return null;
         }
-        int startIndex = moveOneBack(nextFirst);
-        return items[(index + startIndex) % items.length];
+        return items[(index + nextFirst + 1) % items.length];
     }
 
     /** helps to judge if the array is full and initialize indexes.
@@ -128,25 +125,17 @@ public class ArrayDeque<T> {
     private void ifFullThenResize(int capacity) {
         if (size == items.length) {
             resize(capacity);
-            nextFirst = items.length - 1;
-            nextLast = size;
+            nextFirst = 0;
+            nextLast = size + 1;
         }
     }
 
     /** resize the array (from the front / back) */
     private void resize(int capacity) {
         T[] des = (T[]) new Object[capacity];
-        System.arraycopy(items, 0, des, 0, size);
-        items = des;
-    }
-
-    private void saveMemory() {
-        // calculate usage ratio
-        R = Math.round(size * 100 / items.length) / 100.0;
-        // 4 5 6 0 0 0
-        if (items.length >= 16 && R < 0.25) {
-            T[] des = (T[]) new Object[items.length / 2];
-            System.arraycopy(items, 0, des, 0, size);
+        for (int i = 1; i <= size; i += 1) {
+            des[i] = items[(nextFirst + 1) % capacity];
         }
+        items = des;
     }
 }

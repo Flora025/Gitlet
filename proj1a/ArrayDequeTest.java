@@ -67,24 +67,27 @@ public class ArrayDequeTest {
         passed = checkSize(13, ad1.size()) && passed;
         passed = checkGet("1", ad1.get(0)) && passed;
 
-        System.out.println("Printing out deque1: ");
+        System.out.println("\nPrinting out deque1: ");
         ad1.printDeque();
-        printTestStatus(passed);
 
         //myTest2: test addFirst() and removeLast()
         ArrayDeque<Integer> ad2 = new ArrayDeque<Integer>();
         int i;
         for (i = 0; i < 17; i += 1) {
             ad2.addFirst(i);
-        } // 0 1 2 3 4 5 6 7 8 0 0...
+            ad2.addFirst(i);
+            ad2.addFirst(i);
+            ad2.removeLast();
+
+        } // [17, 16, 15 ,... ,3, 2, 1, 0]
         for (int n = 0; n < 17; n += 1) {
             ad2.removeLast();
         }
 
-        System.out.println("Printing out deque2: ");
+        System.out.println("\nPrinting out deque2: ");
         ad2.printDeque();
 
-        //printTestStatus(passed);
+        printTestStatus(passed);
 
     }
 
