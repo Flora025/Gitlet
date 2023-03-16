@@ -153,7 +153,7 @@ public class ArrayDeque<T> {
         R = Math.round(size * 100 / items.length) / 100.0;
         // 4 5 6 0 0 0
         if (R < 0.25) {
-            T[] des = (T[]) new Object[items.length / 2 + 1];
+            T[] des = (T[]) new Object[items.length / 2];
             System.arraycopy(items, 0, des, 0, size);
         }
     }
