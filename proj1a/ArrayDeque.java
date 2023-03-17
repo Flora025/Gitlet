@@ -5,7 +5,7 @@ public class ArrayDeque<T> {
     private int nextFirst;
     private int nextLast;
     private T[] items;
-    private int capacity;
+    private int length;
 
 
     /** Creates an empty linked list deque. */
@@ -14,7 +14,7 @@ public class ArrayDeque<T> {
         items = (T[]) new Object[8];
         nextFirst = items.length - 1;
         nextLast = 0;
-        this.capacity = items.length;
+        length = items.length;
     }
 
     /** resize the array (from the front / back)
@@ -24,10 +24,10 @@ public class ArrayDeque<T> {
     private void resize(int capacity) {
         T[] des = (T[]) new Object[capacity];
         for (int i = 1; i <= size; i += 1) {
-            des[i] = items[(++nextFirst) % this.capacity];
+            des[i] = items[(++nextFirst) % length];
             //IMPORTANT: have to sort the array (into its natural sequence)
         }
-        this.capacity = capacity;
+        length = capacity;
         nextFirst = 0;
         nextLast = size + 1;
         items = des;

@@ -78,10 +78,10 @@ public class LinkedListDequeTest {
         lld1.addFirst(8);
 
         lld1.removeFirst();
-        lld1.removeLast();
         // should be empty 
         passed = checkEmpty(false, lld1.isEmpty()) && passed;
 
+        int i = lld1.getRecursive(1);
         printTestStatus(passed);
 
     }

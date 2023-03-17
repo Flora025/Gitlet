@@ -36,8 +36,7 @@ public class LinkedListDeque<T> {
         curFront.prev = sentinel.next;
         if (sentinel.prev.equals(sentinel)) {
             sentinel.prev = sentinel.next;
-        }
-                // update the original 1st node's prev
+        } // update the original 1st node's prev
         size += 1;
     }
 
@@ -107,7 +106,7 @@ public class LinkedListDeque<T> {
         int i;
         ItemNode p = sentinel;
 
-        for (i = 0; i < index; i += 1) {
+        for (i = 0; i <= index; i += 1) {
             if (p.next.equals(sentinel)) {      // if P is the last item
                 return null;
             }
@@ -121,7 +120,7 @@ public class LinkedListDeque<T> {
     private T getRecurHelper(ItemNode p, int index) {
         if (p.next.equals(sentinel)) {          // handles index out of range
             return null;
-        } else if (index == 0) {
+        } else if (index + 1 == 0) {
             return p.next.item;
         }
         return getRecurHelper(p.next, index - 1);
