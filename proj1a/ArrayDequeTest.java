@@ -42,7 +42,7 @@ public class ArrayDequeTest {
         System.out.println("Running add/isEmpty/Size test.");
 
 
-        ArrayDeque1<String> ad1 = new ArrayDeque1<String>();
+        ArrayDeque<String> ad1 = new ArrayDeque<String>();
 
         boolean passed = checkEmpty(true, ad1.isEmpty());
 
@@ -71,7 +71,7 @@ public class ArrayDequeTest {
         ad1.printDeque();
 
         //myTest2: test addFirst() and removeLast()
-        ArrayDeque1<Integer> ad2 = new ArrayDeque1<Integer>();
+        ArrayDeque<Integer> ad2 = new ArrayDeque<Integer>();
         int i;
         for (i = 0; i < 17; i += 1) {
             ad2.addFirst(i);

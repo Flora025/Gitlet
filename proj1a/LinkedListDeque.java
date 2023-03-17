@@ -31,7 +31,9 @@ public class LinkedListDeque<T> {
 
     /** Adds an item of type T to the front of the deque */
     public void addFirst(T item) {
+        ItemNode curFront = sentinel.next;
         sentinel.next = new ItemNode(sentinel, item, sentinel.next);
+        curFront.prev = sentinel.next;
         if (sentinel.prev.equals(sentinel)) {
             sentinel.prev = sentinel.next;
         }
@@ -50,7 +52,7 @@ public class LinkedListDeque<T> {
 
     /** Returns true if deque is empty, false otherwise. */
     public boolean isEmpty() {
-        return sentinel.next == null;
+        return size == 0;
     }
 
     /** Returns the number of items in the deque. */
