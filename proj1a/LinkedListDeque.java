@@ -24,13 +24,18 @@ public class LinkedListDeque<T> {
     /** Creates an empty linked list deque. */
     public LinkedListDeque() {
         size = 0;
-        sentinel = new ItemNode(sentinel, null, sentinel);
+        sentinel = new ItemNode(null, null, null);
+        sentinel.prev = sentinel;
+        sentinel.next = sentinel;
     }
 
     /** Adds an item of type T to the front of the deque */
     public void addFirst(T item) {
         sentinel.next = new ItemNode(sentinel, item, sentinel.next);
-        sentinel.prev = sentinel.next;        // update the original 1st node's prev
+        if (sentinel.prev.equals(sentinel)) {
+            sentinel.prev = sentinel.next;
+        }
+                // update the original 1st node's prev
         size += 1;
     }
 
@@ -60,7 +65,6 @@ public class LinkedListDeque<T> {
             p = p.next;
             System.out.print(p.item);
             System.out.print(' ');
-
         }
     }
 
@@ -72,7 +76,7 @@ public class LinkedListDeque<T> {
         }
         ItemNode front = sentinel.next;
         sentinel.next = front.next;
-        front.prev = sentinel;
+        front.next.prev = sentinel;
 
         size -= 1;
         return front.item;
@@ -86,7 +90,7 @@ public class LinkedListDeque<T> {
         }
         ItemNode back = sentinel.prev;
         sentinel.prev = back.prev;
-        back.next = sentinel;
+        back.prev.next = sentinel;
 
         size -= 1;
         return back.item;

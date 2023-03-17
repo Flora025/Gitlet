@@ -25,6 +25,7 @@ public class ArrayDeque<T> {
         T[] des = (T[]) new Object[capacity];
         for (int i = 1; i <= size; i += 1) {
             des[i] = items[(++nextFirst) % this.capacity];
+            //IMPORTANT: have to sort the array (into its natural sequence)
         }
         this.capacity = capacity;
         nextFirst = 0;
@@ -101,11 +102,11 @@ public class ArrayDeque<T> {
             return null;
         }
 
-        nextFirst = (nextFirst + 1) % items.length; // 改动 not belonging tome
+        nextFirst = (nextFirst + 1) % items.length;
         T returnItem = items[nextFirst];
         items[nextFirst] = null;
         size -= 1;
-        if (items.length >= 16 && items.length / size > 4) {
+        if (items.length >= 16 && items.length / size > 4) {    //IMPORTANT!!
             resize(items.length / 2);
         }
         return returnItem;
