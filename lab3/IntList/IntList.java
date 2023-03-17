@@ -11,11 +11,11 @@ public class IntList {
     /**
      * First element of list.
      */
-    public int first;
+    private int first;
     /**
      * Remaining elements of list.
      */
-    public IntList rest;
+    private IntList rest;
 
     /**
      * A List with first FIRST0 and rest REST0.
@@ -29,7 +29,7 @@ public class IntList {
      * A List with null rest, and first = 0.
      */
     public IntList() {
-    /* NOTE: public IntList () { }  would also work. */
+        /*  NOTE: public IntList () { }  would also work. */
         this(0, null);
     }
 
@@ -72,7 +72,7 @@ public class IntList {
         return new IntList(L.first * L.first, squareListRecursive(L.rest));
     }
 
-    /** DO NOT MODIFY ANYTHING ABOVE THIS LINE! */
+    /* DO NOT MODIFY ANYTHING ABOVE THIS LINE! */
 
 
     /**
@@ -80,8 +80,7 @@ public class IntList {
      * *  elements of B.  May modify items of A. Don't use 'new'.
      */
     public static IntList dcatenate(IntList A, IntList B) {
-        //TODO:  fill in method
-        if (B == null){
+        if (B == null) {
             return A;
         } else if (A == null) {
             return B;
@@ -95,8 +94,7 @@ public class IntList {
      * * elements of B.  May NOT modify items of A.  Use 'new'.
      */
     public static IntList catenate(IntList A, IntList B) {
-        //TODO:  fill in method
-        if (B == null){
+        if (B == null) {
             return A;
         } else if (A == null) {
             return B;
@@ -104,7 +102,26 @@ public class IntList {
         return new IntList(A.first, catenate(A.rest, B));       //recursion again
     }
 
-
+    // lab 3
+    /**
+     * Returns the reverse of the given IntList.
+     * This method is destructive. If given null
+     * as an input, returns null.
+     */
+    public static IntList reverse(IntList A) {
+        // base case
+        if (A == null) {
+            return A;
+        } else if (A.rest == null) {
+            return A;
+        }
+        int tempFirst = A.first;
+        IntList tempRestReversed = IntList.reverse(A.rest);
+        IntList.dcatenate(tempRestReversed, new IntList(tempFirst, null));
+        A.first = tempRestReversed.first;
+        A.rest = tempRestReversed.rest;
+        return A;
+    }
 
 
 
