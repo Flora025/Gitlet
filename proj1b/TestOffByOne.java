@@ -19,5 +19,6 @@ public class TestOffByOne {
 
         System.out.println("passed!");
     }
-    // Uncomment this class once you've created your CharacterComparator interface and OffByOne class.
+    // Uncomment this class once you've created your CharacterComparator
+    // interface and OffByOne class.
 }

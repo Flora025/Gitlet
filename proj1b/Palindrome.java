@@ -3,7 +3,7 @@
 public class Palindrome {
 
     /** Given a String, wordToDeque should return a Deque */
-    public static Deque<Character> wordToDeque(String word) {
+    public Deque<Character> wordToDeque(String word) {
         Deque<Character> returnD = new ArrayDeque<>();
 
         for (int i = 0; i < word.length(); i += 1) {
@@ -15,7 +15,7 @@ public class Palindrome {
 
     /** return true if the given word is a palindrome, and false otherwise */
     public boolean isPalindrome(String word) {
-        Deque<Character> ad = Palindrome.wordToDeque(word);
+        Deque<Character> ad = wordToDeque(word);
         if (ad.size() == 1 || ad.size() == 0) {
             return true;
         }
@@ -32,7 +32,7 @@ public class Palindrome {
     /** return true if the word is a palindrome
      * according to the character comparison test provided by the CharacterComparator  */
     public boolean isPalindrome(String word, CharacterComparator cc) {
-        Deque<Character> ad = Palindrome.wordToDeque(word);
+        Deque<Character> ad = wordToDeque(word);
         if (ad.size() == 1 || ad.size() == 0) {
             return true;
         }
