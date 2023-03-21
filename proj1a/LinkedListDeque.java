@@ -4,7 +4,7 @@
  * that can be expanded or contracted on both ends (either its front or its back).
  */
 
-public class LinkedListDeque<T> {
+public class LinkedListDeque<T> implements Deque<T> {
 
     private class ItemNode {
         private ItemNode prev;
@@ -30,6 +30,7 @@ public class LinkedListDeque<T> {
     }
 
     /** Adds an item of type T to the front of the deque */
+    @Override
     public void addFirst(T item) {
         ItemNode curFront = sentinel.next;
         sentinel.next = new ItemNode(sentinel, item, sentinel.next);
@@ -42,6 +43,7 @@ public class LinkedListDeque<T> {
 
     /** Adds an item of type T to the back of the deque.
      * must not use loop or recursion! */
+    @Override
     public void addLast(T item) {
         ItemNode curLast = sentinel.prev;
         sentinel.prev = new ItemNode(curLast, item, sentinel);
@@ -50,16 +52,19 @@ public class LinkedListDeque<T> {
     }
 
     /** Returns true if deque is empty, false otherwise. */
+    @Override
     public boolean isEmpty() {
         return size == 0;
     }
 
     /** Returns the number of items in the deque. */
+    @Override
     public int size() {
         return size;
     }
 
     /** Prints the items in the deque from first to last, separated by a space. */
+    @Override
     public void printDeque() {
         ItemNode p = sentinel;
         for (int i = 0; i < size; i += 1) {
@@ -71,6 +76,7 @@ public class LinkedListDeque<T> {
 
     /** Removes and returns the item at the front of the deque.
      * If no such item exists, returns null. */
+    @Override
     public T removeFirst() {
         if (sentinel.next.equals(sentinel)) {
             return null;
@@ -85,6 +91,7 @@ public class LinkedListDeque<T> {
 
     /** Removes and returns the item at the back of the deque.
      * If no such item exists, returns null.*/
+    @Override
     public T removeLast() {
         if (sentinel.prev.equals(sentinel)) {
             return null;
@@ -102,6 +109,7 @@ public class LinkedListDeque<T> {
      * If no such item exists, returns null. Must not alter the deque!
      * Must use iteration.
       */
+    @Override
     public T get(int index) {
         int i;
         ItemNode p = sentinel;
