@@ -1,42 +1,50 @@
 package hw2;
-import edu.princeton.cs.algs4.StdRandom;
-import edu.princeton.cs.algs4.StdStats;
+
+import edu.princeton.cs.introcs.StdRandom;
+import edu.princeton.cs.introcs.StdStats;
 
 public class PercolationStats {
-    private int T;
-    private double[]x;
-    // perform T independent experiments on an N-by-N grid
-    public PercolationStats(int N, int T, PercolationFactory pf){
-        if (N<=0||T<=0)
-            throw new IllegalArgumentException("N and T must > 0");
-        this.T=T;
-        x=new double[T];
 
-        for (int i=0;i<T;i++){
-            Percolation test=pf.make(N);
-            while (!test.percolates()){
-                int randomRow= StdRandom.uniform(N);
-                int randomCol = StdRandom.uniform(N);
-                test.open(randomRow,randomCol);
+    private double[] frac;
+    private int turns;
+
+    // perform T independent experiments on an N-by-N grid
+    public PercolationStats(int N, int T, PercolationFactory pf) {
+        if (N <= 0 || T <= 0) {
+            throw new IllegalArgumentException();
+        }
+        Percolation grid = pf.make(N);
+        turns = T;
+        frac = new double[T];
+        for (int turn = 0; turn < turns; turn += 1) {
+            // for every experiment
+            while (!grid.percolates()) {
+                int rRow = StdRandom.uniform(N);
+                int rCol = StdRandom.uniform(N);
+                grid.open(rRow, rCol);
             }
-            x[i]=(double) test.numberOfOpenSites()/(N*N);
+            frac[turn] = grid.numberOfOpenSites() / (double) (N * N);
         }
     }
-    // sample mean of percolation threshold
-    public double mean(){
-        return StdStats.mean(x);
-    }
-    // sample standard deviation of percolation threshold
-    public double stddev(){
-        return StdStats.stddev(x);
-    }
-    // low endpoint of 95% confidence interval
-    public double confidenceLow(){
-        return mean()-1.96*stddev()/Math.sqrt(T);
-    }
-    // high endpoint of 95% confidence interval
-    public double confidenceHigh(){
-        return mean() + 1.96 * stddev() / Math.sqrt(T);
-    }
-}
 
+    // sample mean of percolation threshold
+    public double mean() {
+        return StdStats.mean(frac);
+    }
+
+    // sample standard deviation of percolation threshold
+    public double stddev() {
+        return StdStats.stddev(frac);
+    }
+
+    // low endpoint of 95% confidence interval
+    public double confidenceLow() {
+        return mean() - 1.96 * stddev() / Math.sqrt(turns);
+    }
+
+    // high endpoint of 95% confidence interval
+    public double confidenceHigh() {
+        return mean() + 1.96 * stddev() / Math.sqrt(turns);
+    }
+
+}
