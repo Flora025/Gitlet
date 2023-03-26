@@ -13,11 +13,11 @@ public class PercolationStats {
         if (N <= 0 || T <= 0) {
             throw new IllegalArgumentException();
         }
-        Percolation grid = pf.make(N);
         turns = T;
         frac = new double[T];
         for (int turn = 0; turn < turns; turn += 1) {
             // for every experiment
+            Percolation grid = pf.make(N);
             while (!grid.percolates()) {
                 int rRow = StdRandom.uniform(N);
                 int rCol = StdRandom.uniform(N);
