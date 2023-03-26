@@ -1,6 +1,5 @@
 package hw2;
 import edu.princeton.cs.algs4.WeightedQuickUnionUF;
-import org.junit.Test;
 
 public class Percolation {
 
@@ -121,8 +120,9 @@ public class Percolation {
     }
 
 
-    /*
+
     public static void main(String[] args) {  // use for unit testing (not required)
+        /*
         // test creating instance
         Percolation grid1 = new Percolation(2);
         System.out.println("Bot Index: " + grid1.bottomSiteIndex); // should be 5 for N = 2
@@ -152,7 +152,7 @@ public class Percolation {
         System.out.println("percolates?: " + grid2.percolates()); // exp: false
         grid2.open(2, 1);
         System.out.println("percolates?: " + grid2.percolates()); // exp: true
-
+        */
     }
-    */
+
 }
