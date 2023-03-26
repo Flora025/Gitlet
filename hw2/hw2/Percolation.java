@@ -121,7 +121,7 @@ public class Percolation {
     }
 
 
-    @Test
+    /*
     public static void main(String[] args) {  // use for unit testing (not required)
         // test creating instance
         Percolation grid1 = new Percolation(2);
@@ -154,5 +154,5 @@ public class Percolation {
         System.out.println("percolates?: " + grid2.percolates()); // exp: true
 
     }
-
+    */
 }
