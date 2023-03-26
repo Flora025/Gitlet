@@ -1,9 +1,6 @@
 package hw2;
-
 import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 import org.junit.Test;
-
-import java.util.Arrays;
 
 public class Percolation {
 
@@ -11,7 +8,7 @@ public class Percolation {
     private boolean[] blockStatusGrid;
     private int topSiteIndex; // index of the top site
     private int bottomSiteIndex;
-    private int NDim;
+    private int nDim;
     private int openCount;
 
     /** create N-by-N grid, with all sites initially blocked */
@@ -23,21 +20,21 @@ public class Percolation {
 
         // creates N x N grid, with additionally a top site (last but 1)
         // and a bottom site (last).
-        NDim = N;
-        grid = new WeightedQuickUnionUF(NDim * NDim + 2);
-        blockStatusGrid = new boolean[NDim * NDim];
-        topSiteIndex = NDim * NDim;
-        bottomSiteIndex = NDim * NDim + 1;
+        nDim = N;
+        grid = new WeightedQuickUnionUF(nDim * nDim + 2);
+        blockStatusGrid = new boolean[nDim * nDim];
+        topSiteIndex = nDim * nDim;
+        bottomSiteIndex = nDim * nDim + 1;
         openCount = 0;
 
         // connect sites (row = 0) with topSite and bottomSite
-        for (int j = 0; j < NDim; j += 1) {
+        for (int j = 0; j < nDim; j += 1) {
             grid.union(topSiteIndex, xy2Index(0, j));
-            grid.union(bottomSiteIndex, xy2Index(NDim - 1, j));
+            grid.union(xy2Index(nDim - 1, j), bottomSiteIndex);
         }
 
         // all the sites are blocked
-        for (int i = 0; i < NDim * NDim; i += 1) {
+        for (int i = 0; i < nDim * nDim; i += 1) {
             blockStatusGrid[i] = false;
         }
 
@@ -46,14 +43,14 @@ public class Percolation {
     /** convert (row, col) into corresponding grid index
      * e.g. (row = 0, col = 2) in a 3-by-3 grid --> index = 2 */
     private int xy2Index(int row, int col) {
-        return row * this.NDim + col;
+        return row * this.nDim + col;
     }
 
 
     /** open the site (row, col) if it is not open already */
     public void open(int row, int col) {
         // exception
-        if (row < 0 || col < 0 || row > NDim - 1 || col > NDim - 1) {
+        if (row < 0 || col < 0 || row > nDim - 1 || col > nDim - 1) {
             throw new IndexOutOfBoundsException("index out of bound");
         }
 
@@ -68,7 +65,7 @@ public class Percolation {
                     grid.union(openId, xy2Index(row - 1, col));
                 }
             }
-            if (row < NDim - 1) {
+            if (row < nDim - 1) {
                 if (isOpen(row + 1, col)) {
                     grid.union(openId, xy2Index(row + 1, col));
                 }
@@ -78,7 +75,7 @@ public class Percolation {
                     grid.union(openId, xy2Index(row, col - 1));
                 }
             }
-            if (col < NDim - 1) {
+            if (col < nDim - 1) {
                 if (isOpen(row, col + 1)) {
                     grid.union(openId, xy2Index(row, col + 1));
                 }
@@ -88,7 +85,7 @@ public class Percolation {
 
     /** return true if the site (row, col) is open */
     public boolean isOpen(int row, int col) {
-        if (row < 0 || col < 0 || row > NDim - 1 || col > NDim - 1) {
+        if (row < 0 || col < 0 || row > nDim - 1 || col > nDim - 1) {
             throw new IndexOutOfBoundsException("index out of bound");
         }
 
@@ -97,7 +94,7 @@ public class Percolation {
 
     /* return true if the site (row, col) is full */
     public boolean isFull(int row, int col) {
-        if (row < 0 || col < 0 || row > NDim - 1 || col > NDim - 1) {
+        if (row < 0 || col < 0 || row > nDim - 1 || col > nDim - 1) {
             throw new IndexOutOfBoundsException("index out of bound");
         }
 
@@ -114,6 +111,9 @@ public class Percolation {
 
     // does the system percolate?
     public boolean percolates() {
+        if (nDim == 1 && !isOpen(0, 0)) {
+            return false;
+        }
         if (grid.connected(bottomSiteIndex, topSiteIndex)) {
             return true;
         }
