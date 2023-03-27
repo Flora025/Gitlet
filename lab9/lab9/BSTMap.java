@@ -147,7 +147,7 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
         root = removeMin(root);
     }
 
-    private Node removeMin(Node p) {
+    public Node removeMin(Node p) {
         if (p.left == null) {
             return p.right;
         }
@@ -194,8 +194,8 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
             // In case of two sub-nodes, have to do some tweaks:
             Node tmp = p;
             p = min(tmp.right);             // 1. find the new substitute for the deleted node P
-            p.left = tmp.left;              // 2. connect the original left sub-nodes to the new P
-            p.right = removeMin(tmp.right); // 3. connect the updated right nodes to the new P
+            p.right = removeMin(tmp.right); // 2. connect the updated right nodes to the new P
+            p.left = tmp.left;              // 3. connect the original left sub-nodes to the new P
         }
 
         return p;

@@ -155,6 +155,20 @@ public class TestBSTMap {
         }
     }
 
+    @Test
+    public void testRemoveRoot() {
+        BSTMap<Integer, Integer> b3 = new BSTMap<Integer, Integer>();
+        b3.put(3, 3);
+        b3.put(1, 1);
+        b3.put(5, 5);
+        b3.put(0, 0);
+        b3.put(2, 2);
+        b3.put(4, 4);
+        b3.put(6, 6);
+        b3.remove(3);
+    }
+
+
     public static void main(String[] args) {
         jh61b.junit.TestRunner.runTests(TestBSTMap.class);
     }
