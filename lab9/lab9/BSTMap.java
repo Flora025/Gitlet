@@ -198,6 +198,8 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
             p.left = tmp.left;              // 3. connect the original left sub-nodes to the new P
         }
 
+        // Note: the sequence of the tweaks matters!!!
+
         return p;
     }
 
