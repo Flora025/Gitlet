@@ -5,6 +5,10 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 import lab9.BSTMap;
 
+import java.util.HashSet;
+import java.util.Random;
+import java.util.Set;
+
 /**
  * Tests by Brendan Hu, Spring 2015, revised for 2018 by Josh Hug
  */
@@ -64,6 +68,20 @@ public class TestBSTMap {
         assertEquals(2, b.size());
     }
 
+    @Test
+    public void testRandomGet() {
+        BSTMap<Integer, Integer> b = new BSTMap<Integer, Integer>();
+        b.put(0, 0);
+        b.put(1, 1);
+        b.put(4, 4);
+        b.put(3, 3);
+        b.put(2, 2);
+        assertNull(b.get(5));
+        assertEquals(0, (int) b.get(0));
+        assertEquals(1, (int) b.get(1));
+        assertEquals(4, (int) b.get(4));
+    }
+
     // assumes put works
     @Test
     public void sanitySizeTest() {
@@ -84,6 +102,57 @@ public class TestBSTMap {
         b.put("hi", 1);
         assertTrue(b.containsKey("hi"));
         assertTrue(b.get("hi") != null);
+    }
+
+    @Test
+    public void TestKeySet() {
+        BSTMap<Integer, Integer> b = new BSTMap<Integer, Integer>();
+        b.put(1, 1);
+        b.put(2, 2);
+        b.put(4, 4);
+        b.put(3, 4);
+        Set<Integer> intKey = new HashSet<Integer>();
+        intKey.add(1);
+        intKey.add(2);
+        intKey.add(4);
+        intKey.add(3);
+        assertEquals(b.keySet(), intKey);
+    }
+
+    @Test
+    public void TestPutRemove() {
+        BSTMap<Integer, Integer> b = new BSTMap<Integer, Integer>();
+        assertNull(b.remove(1));
+        b.put(2, 2);
+        b.put(1, 1);
+        b.put(4, 4);
+        b.put(3, 3);
+        int ret = b.remove(4);
+        assertEquals(ret, 4);
+        assertNull(b.remove(5));
+
+    }
+
+    /** random put() and remove() */
+    // TODO prbs w/ remove
+    @Test
+    public void testRandomPut() {
+        Random r = new Random();
+        BSTMap<Integer, Integer> b2 = new BSTMap<Integer, Integer>();
+        for (int a = 0; a < 10; a += 1) {
+            int someKey = r.nextInt(0, 10);
+            b2.put(someKey, someKey);
+        }
+
+        for (int a = 0; a < 5; a += 1) {
+            int someKey = r.nextInt(0, 10);
+            if (b2.get(someKey) != null) {
+                assertEquals(someKey, (int) b2.remove(someKey));
+            } else {
+                assertNull(b2.remove(someKey));
+            }
+
+        }
     }
 
     public static void main(String[] args) {
