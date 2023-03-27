@@ -13,10 +13,10 @@ public class TestMyHashMap {
     @Test
     public void sanityGenericsTest() {
         try {
-            MyHashMap<String, String> a = new MyHashMap<String, String>();
-            MyHashMap<String, Integer> b = new MyHashMap<String, Integer>();
-            MyHashMap<Integer, String> c = new MyHashMap<Integer, String>();
-            MyHashMap<Boolean, Integer> e = new MyHashMap<Boolean, Integer>();
+            MyHashMap<String, String> a = new MyHashMap<>();
+            MyHashMap<String, Integer> b = new MyHashMap<>();
+            MyHashMap<Integer, String> c = new MyHashMap<>();
+            MyHashMap<Boolean, Integer> e = new MyHashMap<>();
         } catch (Exception e) {
             fail();
         }
