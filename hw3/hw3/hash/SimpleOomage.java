@@ -32,7 +32,7 @@ public class SimpleOomage implements Oomage {
             return red + green + blue;
         } else {
             //
-            return 17 + ((red / 5 * 256 + green / 5) * 256 + blue / 5) * 256;
+            return ((17+red / 5) * 256 + green / 5) * 256 + blue / 5) * 256;
         }
     }
 
