@@ -119,6 +119,9 @@ public class ArrayHeap<T> implements ExtrinsicPQ<T> {
      * Bubbles down the node currently at the given index.
      */
     private void sink(int index) {
+        if (!inBounds(index)) {
+            return;
+        }
         // Throws an exception if index is invalid. DON'T CHANGE THIS LINE.
         validateSinkSwimArg(index);
 
@@ -204,11 +207,8 @@ public class ArrayHeap<T> implements ExtrinsicPQ<T> {
             Node tmp = getNode(i);
             if (tmp.myItem.equals(item)) {
                 tmp.myPriority = priority;
-                if (min(parentIndex(i), i) != i) {
-                    sink(i);
-                } else {
-                    swim(i);
-                }
+                sink(i);
+                swim(i);
                 return;
             }
         }
@@ -293,6 +293,27 @@ public class ArrayHeap<T> implements ExtrinsicPQ<T> {
     }
 
     @Test
+    public void testPriority() {
+        ArrayHeap<String> pq = new ArrayHeap<>();
+        pq.insert("c", 3);
+        pq.insert("i", 9);
+        pq.insert("g", 7);
+        pq.insert("a", 1);
+        pq.insert("h", 8);
+        pq.insert("e", 5);
+        pq.insert("b", 2);
+        pq.insert("d", 4);
+        System.out.println("PQ before:");
+        System.out.println(pq);
+
+        pq.changePriority("d", 0);
+        assertEquals("d", pq.contents[1].myItem);
+
+        System.out.println("PQ after:");
+        System.out.println(pq);
+    }
+
+    @Test
     public void testIndexing() {
         assertEquals(6, leftIndex(3));
         assertEquals(10, leftIndex(5));
@@ -303,6 +324,7 @@ public class ArrayHeap<T> implements ExtrinsicPQ<T> {
         assertEquals(5, parentIndex(10));
         assertEquals(3, parentIndex(7));
         assertEquals(5, parentIndex(11));
+
     }
 
     @Test
