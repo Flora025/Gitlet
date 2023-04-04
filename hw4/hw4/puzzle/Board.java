@@ -116,6 +116,10 @@ public class Board implements WorldState {
         }
 
         Board y1 = (Board) y;
+        if (y1.size() != this.size()) {
+            return false;
+        }
+
         for (int i = 0; i < size() * size(); i += 1) {
             if (this.tileAt(i / tiles.length, i % tiles.length)
                 != y1.tileAt(i / tiles.length, i % tiles.length)) {
@@ -123,6 +127,11 @@ public class Board implements WorldState {
             }
         }
         return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
     }
 
     /** Returns the string representation of the board.
