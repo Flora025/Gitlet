@@ -3,6 +3,7 @@ package hw4.puzzle;
 import edu.princeton.cs.algs4.MinPQ;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -36,18 +37,31 @@ public class Solver {
 
         @Override
         public int compareTo(SearchNode o) {
-            return (this.movesFromInit + this.curWorld.estimatedDistanceToGoal()) -
-                    (o.movesFromInit + o.curWorld.estimatedDistanceToGoal());
+            int distThis;
+            int distO;
+            if (cacheDistance.get(this.curWorld) == null) {
+                cacheDistance.put(this.curWorld, this.curWorld.estimatedDistanceToGoal());
+            }
+            if (cacheDistance.get(o.curWorld) == null) {
+                cacheDistance.put(o.curWorld, o.curWorld.estimatedDistanceToGoal());
+            }
+            distO = o.movesFromInit + cacheDistance.get(o.curWorld);
+            distThis = this.movesFromInit + cacheDistance.get(this.curWorld);
+            return distThis - distO;
         }
 
     }
 
+    private int everQueued = 0;
     private MinPQ<SearchNode> minHeap = new MinPQ<>();
     private WorldState initWorld;
 
     private List<WorldState> solList = new LinkedList<>();
     private SearchNode delNode;
     // this would be the latest deleted node, that is, the Node with the goal.
+
+    // cache the estimated distance
+    private HashMap<WorldState, Integer> cacheDistance = new HashMap<>();
 
 
 
@@ -70,8 +84,9 @@ public class Solver {
                 break;
             } else {
                 for (WorldState n : delNode.getNeighbors()) {
-                    if (delNode.prevNode == null || !n.equals(delNode.prevNode.curWorld)) {
+                    if (delNode.prevNode == null ? true : (!n.equals(delNode.prevNode.curWorld))) {
                         minHeap.insert(new SearchNode(n, delNode, 1 + delNode.getMoves()));
+                        everQueued += 1;
                     }
                 }
             }
@@ -84,6 +99,7 @@ public class Solver {
             solList.add(tmp.curWorld);
             tmp = tmp.prevNode;
         }
+        // System.out.println(everQueued);
     }
 
     /** Returns the minimum number of moves to solve the puzzle starting

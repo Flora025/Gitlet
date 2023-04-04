@@ -81,7 +81,7 @@ public class TestSolver {
     }
 
 
- /* Uncomment everything in this block once you've written Board.
+    /* Uncomment everything in this block once you've written Board. */
      public static Board readBoard(String filename) {
         In in = new In(filename);
         int N = in.readInt();
@@ -111,6 +111,7 @@ public class TestSolver {
     @Test(timeout = 40000)
     public void test3x3BoardPuzzles() {
         for (int i = 0; i <= 30; i += 1) {
+            // fixed issue occurring at i == 27 - 30
             String pnum = String.format("%02d", i);
             String puzzleName = "input/puzzle3x3-" + pnum + ".txt";
             Board b = readBoard(puzzleName);
@@ -124,6 +125,7 @@ public class TestSolver {
     @Test(timeout = 20000)
     public void test4x4BoardPuzzles() {
         for (int i = 0; i <= 30; i += 1) {
+            // test passed 0-23; fixed issues at i == 24
             String pnum = String.format("%02d", i);
             String puzzleName = "input/puzzle4x4-" + pnum + ".txt";
             Board b = readBoard(puzzleName);
@@ -145,5 +147,6 @@ public class TestSolver {
             Solver s = new Solver(b);
             assertEquals("Wrong number of moves on " + puzzleName, bps.numMoves, s.moves());
         }
-    }*/
+    }
+
 }
