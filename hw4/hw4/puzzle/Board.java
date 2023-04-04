@@ -65,21 +65,19 @@ public class Board implements WorldState {
     }
 
     /** Hamming estimate described below */
-    /*
     public int hamming() {
-        int index;
-        int hammingNum = 0;
-        int goal = 1;
-        for (index = 0; index < tiles.length - 2; index += 1) {
-            hammingNum += tileAt(index / tiles.length, index % tiles.length + 1) - goal;
-            // e.g. (6 / 3, 6 % 3) --> (2, 0)  | (5 / 3, 5 % 3) --> (1, 2)
-            goal += 1;
+        int dist = 0;
+        for (int i = 0; i < size(); i++) {
+            for (int j = 0; j < size(); j++) {
+                if (tiles[i][j] == 0) {
+                    continue;
+                } else if (tiles[i][j] != i * size() + j + 1) {
+                    dist++;
+                }
+            }
         }
-        int hamLast = tileAt(tiles.length - 1, tiles.length - 1) == 0 ? 0 : 1;
-        return hammingNum + hamLast;
+        return dist;
     }
-
-     */
 
 
     public int manhattan() {

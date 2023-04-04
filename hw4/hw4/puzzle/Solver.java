@@ -94,7 +94,6 @@ public class Solver {
 
         // save solutions
         SearchNode tmp = delNode;
-        solList.add(tmp.curWorld);
         while (tmp != null) {
             solList.add(tmp.curWorld);
             tmp = tmp.prevNode;
