@@ -79,7 +79,11 @@ public class MergeSort {
             Queue<Item> items) {
         // Your code here!
         // make ((1), (2), (3), (4))
+        if (items.isEmpty()) {
+            return items;
+        }
         Queue<Queue<Item>> singleQQ = makeSingleItemQueues(items);
+
 
         while (singleQQ.size() != 1) {
             Queue<Item> queue1 = singleQQ.dequeue();
@@ -106,6 +110,12 @@ public class MergeSort {
 
         System.out.println(students);
         System.out.println(studentsS);
+
+        Queue<String> qNone = new Queue<String>();
+
+        Queue qNoneS = MergeSort.mergeSort(qNone);
+        System.out.println("qNone: " + qNone);
+        System.out.println("qNone Sorted: " + qNoneS);
 
     }
 }
