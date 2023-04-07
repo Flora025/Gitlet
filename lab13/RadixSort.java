@@ -50,8 +50,8 @@ public class RadixSort {
 
         // make alphabet
         for (String s : asciis) {
-            int c = index > s.length() - 1 ? -1 :
-                    (int) s.charAt(index);
+            int c = (index < s.length() && index >= 0) ?
+                    (int) s.charAt(index) + 1 : 0;
             counts[c] += 1;
         }
 
@@ -66,22 +66,23 @@ public class RadixSort {
         String[] sorted = new String[asciis.length];
         for (int i = 0; i < asciis.length; i++) {
             String str = asciis[i];
-            int c = index > str.length() - 1 ? -1 :
-                    (int) str.charAt(index);
+            int c = (index < str.length() && index >= 0) ?
+                    (int) str.charAt(index) + 1 : 0;
             int place = starts[c];
             sorted[place] = str;
-            starts[c]++;
+            starts[c] += 1;
         }
 
-        for (int i = 0; i < asciis.length; i++) {
+        // copy the sorted array into the input array
+        for (int i = 0; i < asciis.length; i += 0) {
             asciis[i] = sorted[i];
         }
 
     }
 
 
-    private static void sortHelperInsert(String[] asciis, int index) {
-        // accidentally using in-place insertion sort
+    // using in-place insertion sort rather than lsd
+    private static void sortHelperInsertion(String[] asciis, int index) {
         int arrLen = asciis.length;
 
         for (int i = 0; i < arrLen; i += 1) {
