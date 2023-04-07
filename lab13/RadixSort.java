@@ -50,7 +50,7 @@ public class RadixSort {
 
         // make alphabet
         for (String s : asciis) {
-            int c = index > s.length() - 1? -1 :
+            int c = index > s.length() - 1 ? -1 :
                     (int) s.charAt(index);
             counts[c] += 1;
         }
@@ -66,7 +66,7 @@ public class RadixSort {
         String[] sorted = new String[asciis.length];
         for (int i = 0; i < asciis.length; i++) {
             String str = asciis[i];
-            int c = index > str.length() - 1? -1 :
+            int c = index > str.length() - 1 ? -1 :
                     (int) str.charAt(index);
             int place = starts[c];
             sorted[place] = str;
@@ -75,13 +75,12 @@ public class RadixSort {
 
         for (int i = 0; i < asciis.length; i++) {
             asciis[i] = sorted[i];
+        }
+
     }
 
 
     private static void sortHelperInsert(String[] asciis, int index) {
-        // Optional LSD helper method for required LSD radix sort
-        // note: to sort Strings, we would pad them on the right with empty values
-
         // accidentally using in-place insertion sort
         int arrLen = asciis.length;
 
