@@ -47,7 +47,14 @@ public class UnitTest {
         Assert.assertTrue(fp.exists());
         // 2. Check if the nameToHash map has been saved into the staging area [Add]
         HashMap<String, String> expected = new HashMap<>();
-        expected.put("hello.txt", sha1("hello.txt"));
-        Assert.assertEquals(readObject(Repository.Add, HashMap.class), expected);
+        String text = "hello.txt";
+        expected.put(text, sha1(text));
+        Assert.assertEquals(expected, readObject(Repository.Add, HashMap.class));
+        // 3. Add content and check 2 again
+        String content = "goodbye";
+        writeContents(randomFile, content); // add content
+        Repository.add("hello.txt"); // use <add> command
+        expected.put(text, sha1(text + content));
+        Assert.assertEquals(expected, readObject(Repository.Add, HashMap.class));
     }
 }
