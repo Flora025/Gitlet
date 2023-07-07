@@ -33,7 +33,7 @@ public class Repository {
 
 
     /** Initialize .gitlet repository in the current directory. */
-    public static void init() {
+    public static void init() throws IOException {
         // Exit program if gitlet vcs already exists
         if (GITLET_DIR.exists()) {
             Utils.message("A Gitlet version-control system already exists in the current directory.");
@@ -41,43 +41,26 @@ public class Repository {
         }
 
         // Automatically make the first commit with commit info
-        // FIXME: clean debug statements
         System.getProperty("user.dir");
-        if (GITLET_DIR.mkdir()) {
-            // Create dirs and files
-            COMMIT_DIR.mkdir();
-            BLOB_DIR.mkdir();
-            try {
-                HEAD.createNewFile();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            try {
-                Master.createNewFile();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+        // 1. Create dirs and files
+        GITLET_DIR.mkdir();
+        COMMIT_DIR.mkdir();
+        BLOB_DIR.mkdir();
+        HEAD.createNewFile();
+        Master.createNewFile();
 
-            // Create a first Commit
-            String commitMsg= "initial commit";
-            Date UnixEpoch = new Date(0);
-            Commit firstCommit = new Commit(commitMsg, null, UnixEpoch);
+        // 2. Create a first Commit and Get its hash
+        Commit firstCommit = new Commit("initial commit", null, new Date(0));
+        String shaName = sha1(firstCommit.getData());
 
-            // Serialize the Commit and save it to COMMIT_DIR
-            String shaName = sha1(firstCommit.getData());
-            File initCommitF = join(COMMIT_DIR, shaName); // the name of the commit is its sha1 hash
-            try {
-                initCommitF.createNewFile();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            writeObject(initCommitF, firstCommit); // serialize and write in
+        // 3. Serialize the Commit and save it to COMMIT_DIR
+        File initCommitF = join(COMMIT_DIR, shaName); // the name of the commit is its sha1 hash
+        initCommitF.createNewFile();
+        writeObject(initCommitF, firstCommit); // serialize and write in
 
-            // Initialize HEAD and master pointers
-            writeObject(HEAD, shaName); // designate HEAD -> initCommit
-            writeObject(Master, shaName); // designate Master -> initCommit
-        } else {
-            Utils.message("Fail to create GITLET_DIR!"); // Debug
-        };
+        // 4. Initialize HEAD and master pointers
+        writeObject(HEAD, shaName); // designate HEAD -> initCommit
+        writeObject(Master, shaName); // designate Master -> initCommit
     }
+
 }
