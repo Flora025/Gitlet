@@ -69,7 +69,6 @@ public class Repository {
      *
      *  @param plainName Plain name of the file. E.g. Hello.txt */
     public static void add(String plainName) {
-        // 根据plainName在cwd找到file =>
         File curFile = join(CWD, plainName);
         if (!curFile.exists()) {
             message("File does not exist.");
@@ -87,7 +86,7 @@ public class Repository {
         Map<String, String> nameToBlob = curHead.getMap();
         if (!shaName.equals(nameToBlob.getOrDefault(plainName, ""))) {
             // Add the new mapping to staging area for addition (Add)
-            HashMap<String, String> stagedAddition = readObject(Add, HashMap.class);
+            HashMap<String, String> stagedAddition = getAdd();
             stagedAddition.put(plainName, shaName);
             writeObject(Add, stagedAddition); // overwrite
         }
@@ -101,8 +100,8 @@ public class Repository {
      */
     public static void commit(String message) {
         // Read in the plainName-to-blobHash map
-        HashMap<String, String> stagedAddition = readObject(Add, HashMap.class);
-        // TODO: staged removal not yet implemented
+        HashMap<String, String> stagedAddition = getAdd();
+        HashMap<String, String> stagedRemoval = getRm();
 
         // Failure cases: if no file has been staged
         if (stagedAddition.size() == 0) {
@@ -115,25 +114,62 @@ public class Repository {
         HashMap<String, String> curMap = new HashMap<>(parentCommit.getMap()); // a copy of parent's map
         Commit curCommit = new Commit(message, parentCommit.getHash(), curMap, new Date());
 
-        // Update current Commit according to staged addition and removal
-        // TODO "files tracked in the current commit may be untracked in the new commit
-        // as a result being staged for removal by the rm command (below)."
+        /** @implNote:
+         * Rm records files once `staged` and just deleted from the WD.
+         * The files are no longer in the WD, but are not yet updated in the Commit mappings.*/
 
-        // For all staged files, update/insert mappings
+        // Update current Commit according to staged addition and removal
+        // FIXME[refactor]: abstraction
         for (String plainName : stagedAddition.keySet()) {
-                curMap.put(plainName, stagedAddition.get(plainName));
+            // For all staged files, update/insert mappings
+            curMap.put(plainName, stagedAddition.get(plainName));
+        }
+        for (String plainName : stagedRemoval.keySet()) {
+            curMap.remove(plainName);
         }
 
         // Clean the staging area (Add && Rm)
-        writeObject(Add, new HashMap<String, String>());
-        writeObject(Rm, new HashMap<String, String>());
+        cleanAdd();
+        cleanRm();
 
         // Update HEAD and MASTER pointers
         updateMasterTo(curCommit);
         updateHeadTo(curCommit);
-
     }
 
+    /**
+     * Unstage the file if it is currently staged for addition.
+     * If the file is tracked in the current commit,
+     * stage it for removal and remove the file from the working directory
+     * @param plainName The plain name of the file to be removed.
+     */
+    public static void rm(String plainName) {
+        HashMap<String, String> stagedAddition = getAdd(); // staged or not
+        HashMap<String, String> headMap = getHead().getMap(); // tracked or not
+        boolean isStaged = stagedAddition.containsKey(plainName);
+        boolean isTracked = headMap.containsKey(plainName);
+
+        // Failure cases: if the file is neither `staged` nor `tracked`
+        if (!isStaged && (!isTracked)) {
+            message("No reason to remove the file.");
+            System.exit(0);
+        }
+
+        // If the file exists in stagedAddition,
+        // remove it from add and add to stagedRemoval
+        if (isStaged) {
+            HashMap<String, String> stagedRemoval = getRm();
+            stagedRemoval.put(plainName, stagedAddition.remove(plainName));
+        }
+
+        // If the file is tracked in curCommit[HEAD],
+        // remove it from the working directory
+        if (isTracked) {
+            File delFile = join(CWD, plainName); // abs path of the file to be deleted
+            restrictedDelete(delFile);
+        }
+
+    }
 
     /* HEAD and Master management */
 
@@ -163,4 +199,24 @@ public class Repository {
         writeContents(Master, commit.getHash());
     }
 
+
+    /* Staging area helper */
+
+    /** Removes all mappings in the staged area for addition. */
+    private static void cleanAdd() {
+        writeObject(Add, new HashMap<String, String>());
+    }
+
+    /** Removes all mappings in the staged area for removal. */
+    private static void cleanRm() {
+        writeObject(Rm, new HashMap<String, String>());
+    }
+
+    private static HashMap<String, String> getAdd() {
+         return readObject(Add, HashMap.class);
+    }
+
+    private static HashMap<String, String> getRm() {
+        return readObject(Rm, HashMap.class);
+    }
 }
