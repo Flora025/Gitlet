@@ -4,10 +4,13 @@ import org.junit.Assert;
 import org.junit.Test;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 
-import gitlet.Utils;
+import static gitlet.Utils.*;
 
 public class UnitTest {
+    public static final File CWD = Repository.CWD;
+
     /** Test Repository.init() */
     @Test
     public void testInit() {
@@ -18,7 +21,7 @@ public class UnitTest {
         }
 
         File CWD = new File(System.getProperty("user.dir"));
-        File GITLET_DIR = Utils.join(CWD, ".gitlet");
+        File GITLET_DIR = join(CWD, ".gitlet");
 
         Assert.assertTrue(GITLET_DIR.exists());
     }
@@ -26,6 +29,25 @@ public class UnitTest {
     /** Test Repository.add() */
     @Test
     public void testAdd() {
-        // placeholder
+
+        // Create a new file in cwd
+        File randomFile = join(CWD, "hello.txt");
+        try {
+            randomFile.createNewFile();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        // Use the add(file) command: add hell0.txt
+        Repository.add("hello.txt");
+
+        // Validations: ok
+        // 1. Check if the blob_folder saves the blob
+        File fp = join(Blob.BLOB_FOLDER, sha1("hello.txt")); // note: there's no content so just hash the name
+        Assert.assertTrue(fp.exists());
+        // 2. Check if the nameToHash map has been saved into the staging area [Add]
+        HashMap<String, String> expected = new HashMap<>();
+        expected.put("hello.txt", sha1("hello.txt"));
+        Assert.assertEquals(readObject(Repository.Add, HashMap.class), expected);
     }
 }

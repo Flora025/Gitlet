@@ -27,9 +27,11 @@ public class Main {
                 }
                 break;
             case "add":
-                // TODO: handle the `add [filename]` command
+                if (args.length < 2) {
+                    System.exit(0);
+                }
+                Repository.add(args[1]);
                 break;
-            // TODO: FILL THE REST IN
             case "commit":
                 // TODO: `commit [message]` command
                 break;

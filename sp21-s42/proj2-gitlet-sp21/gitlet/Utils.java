@@ -141,8 +141,7 @@ class Utils {
     static <T extends Serializable> T readObject(File file,
                                                  Class<T> expectedClass) {
         try {
-            ObjectInputStream in =
-                new ObjectInputStream(new FileInputStream(file));
+            ObjectInputStream in = new ObjectInputStream(new FileInputStream(file));
             T result = expectedClass.cast(in.readObject());
             in.close();
             return result;
