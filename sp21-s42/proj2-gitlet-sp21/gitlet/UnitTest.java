@@ -57,4 +57,6 @@ public class UnitTest {
         expected.put(text, sha1(text + content));
         Assert.assertEquals(expected, readObject(Repository.Add, HashMap.class));
     }
+
+    // TODO add tests for commit and rm
 }

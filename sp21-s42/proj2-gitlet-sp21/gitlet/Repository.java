@@ -55,7 +55,7 @@ public class Repository {
         writeObject(Rm, new HashMap<>());
 
         // 2. Create and save the first Commit
-        Commit firstCommit = new Commit("initial commit", null, new Date(0));
+        Commit firstCommit = new Commit("initial commit", null, new HashMap<>(), new Date(0));
         firstCommit.saveCommit();
 
         // 3. Initialize HEAD and master pointers
@@ -87,16 +87,51 @@ public class Repository {
         Map<String, String> nameToBlob = curHead.getMap();
         if (!shaName.equals(nameToBlob.getOrDefault(plainName, ""))) {
             // Add the new mapping to staging area for addition (Add)
-            // FIXME[bug]
             HashMap<String, String> stagedAddition = readObject(Add, HashMap.class);
-            if (null == stagedAddition) {
-                // if the map has not yet been initialized, create a new map
-                stagedAddition = new HashMap<>();
-            };
             stagedAddition.put(plainName, shaName);
             writeObject(Add, stagedAddition); // overwrite
         }
         // Else if the two matches -> No changes in the file, and thus nothing happens
+    }
+
+    /**
+     * Saves a snapshot of tracked files in the current commit and staging area.
+     * Save and start tracking any files that were staged for addition but were not tracked by its parent.
+     * @param message Commit message.
+     */
+    public static void commit(String message) {
+        // Read in the plainName-to-blobHash map
+        HashMap<String, String> stagedAddition = readObject(Add, HashMap.class);
+        // TODO: staged removal not yet implemented
+
+        // Failure cases: if no file has been staged
+        if (stagedAddition.size() == 0) {
+            message("No changes added to the commit.");
+            System.exit(0);
+        }
+
+        // Clone the parent Commit and update meta data
+        Commit parentCommit = getHead();
+        HashMap<String, String> curMap = new HashMap<>(parentCommit.getMap()); // a copy of parent's map
+        Commit curCommit = new Commit(message, parentCommit.getHash(), curMap, new Date());
+
+        // Update current Commit according to staged addition and removal
+        // TODO "files tracked in the current commit may be untracked in the new commit
+        // as a result being staged for removal by the rm command (below)."
+
+        // For all staged files, update/insert mappings
+        for (String plainName : stagedAddition.keySet()) {
+                curMap.put(plainName, stagedAddition.get(plainName));
+        }
+
+        // Clean the staging area (Add && Rm)
+        writeObject(Add, new HashMap<String, String>());
+        writeObject(Rm, new HashMap<String, String>());
+
+        // Update HEAD and MASTER pointers
+        updateMasterTo(curCommit);
+        updateHeadTo(curCommit);
+
     }
 
 

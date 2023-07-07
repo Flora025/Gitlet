@@ -38,14 +38,15 @@ public class Commit implements Serializable {
      * @param parent Parent of the Commit instance.
      * @param timestamp Timestamp of the Commit instance.
      */
-    public Commit(String msg, String parent, Date... timestamp) {
+    public Commit(String msg, String parent, HashMap<String, String> nameToBlob, Date... timestamp) {
         // metadata
         this.message = msg;
         this.timestamp = timestamp[0];
         // references
         this.parent = parent;
-        this.nameToBlob = new HashMap<>();
+        this.nameToBlob = nameToBlob;
     }
+
 
     /* Commit Functions */
 
@@ -99,7 +100,7 @@ public class Commit implements Serializable {
 
     /** Returns the plainName to blob hashmap of current commit.
      * Example of mapping: {"hello.txt": "someSHA-1Hash"}*/
-    public Map<String, String> getMap() {
+    public HashMap<String, String> getMap() {
         return this.nameToBlob;
     }
 

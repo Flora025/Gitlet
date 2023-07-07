@@ -2,6 +2,8 @@ package gitlet;
 
 import java.io.IOException;
 
+import static gitlet.Utils.*;
+
 /** Driver class for Gitlet, a subset of the Git version-control system.
  *  @author flora
  */
@@ -12,7 +14,7 @@ public class Main {
      */
     public static void main(String[] args) {
         if (args.length == 0) {
-            Utils.message("Usage: java gitlet.Main ARGS, where ARGS contains" +
+            message("Usage: java gitlet.Main ARGS, where ARGS contains" +
                     "\n<COMMAND> <OPERAND1> <OPERAND2> ... ");
             System.exit(0);
         }
@@ -34,6 +36,17 @@ public class Main {
                 break;
             case "commit":
                 // TODO: `commit [message]` command
+                if (args.length < 2) {
+                    message("Please enter a commit message");
+                    System.exit(0);
+                }
+                Repository.commit(args[1]);
+                break;
+            case "rm":
+                if (args.length < 2) {
+                    System.exit(0);
+                }
+                Repository.rm(args[1]);
                 break;
         }
     }
