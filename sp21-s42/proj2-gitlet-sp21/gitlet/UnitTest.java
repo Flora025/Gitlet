@@ -169,6 +169,7 @@ public class UnitTest {
         }
 
         Repository.find("add fav songs"); // [ok]
+        Repository.find("this msg never exists"); // [ok]
         clean();
     }
 }
