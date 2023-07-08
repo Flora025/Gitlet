@@ -1,14 +1,13 @@
 package gitlet;
 
-import org.checkerframework.checker.units.qual.C;
 import org.junit.Assert;
 import org.junit.Test;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 
 import static gitlet.Utils.*;
-import static gitlet.Utils.readObject;
 
 public class UnitTest {
     public static final File CWD = Repository.CWD;
@@ -41,11 +40,14 @@ public class UnitTest {
 
         // Create a new file in cwd
         File randomFile = join(CWD, "hello.txt");
-        try {
-            randomFile.createNewFile();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        if (!randomFile.exists()) {
+            try {
+                randomFile.createNewFile();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
+        // staging必须是class variable 不能放在init()里
 
         // Use the add(file) command: add hell0.txt
         Repository.add("hello.txt");
@@ -58,13 +60,13 @@ public class UnitTest {
         HashMap<String, String> expected = new HashMap<>();
         String text = "hello.txt";
         expected.put(text, sha1(text));
-        Assert.assertEquals(expected, readObject(Repository.Add, HashMap.class));
+        Assert.assertEquals(expected, Repository.Add.getAreaMap());
         // 3. Add content and check 2 again
         String content = "goodbye";
         writeContents(randomFile, content); // add content
         Repository.add("hello.txt"); // use <add> command
         expected.put(text, sha1(text + content));
-        Assert.assertEquals(expected, readObject(Repository.Add, HashMap.class));
+        Assert.assertEquals(expected, Repository.Add.getAreaMap());
     }
 
     // TODO add tests for commit and rm
@@ -97,8 +99,7 @@ public class UnitTest {
         Repository.add("higedan.txt");
         Repository.add("yorushika.txt");
         // By now there should be two blobs in BLOB_FOLDER, two items in the StagedAddition Map
-        HashMap<String, String> stg = readObject(Repository.Add, HashMap.class);
-        Assert.assertEquals(2, stg.size());
+        Assert.assertEquals(2, Repository.Add.size());
 
         // call commit() func
         Repository.commit("add favorite bands");
@@ -117,18 +118,19 @@ public class UnitTest {
 
         Repository.add("yorushika.txt");
         Repository.add("higedan.txt");
-        Repository.commit("add fav songs");
+        Repository.commit("add fav songs"); // 【1】commit
         writeContents(yrsk, readContents(yrsk), "Setting Sun");
         Repository.add("yorushika.txt"); // now yrsk is in StagedAddition
         Repository.rm("yorushika.txt"); // remove yrsk
         // Expected behavior: yrsk removed from CWD, stg and the new Commit map
         System.out.println(Repository.getHeadInfo());
+        // Repository.commit("delete one"); // 【2】 commit FIXME
+        System.out.println(Repository.getHeadInfo());
+
 
         // finally, check Staged Area (should be clean)
-        HashMap<String, String> stgAdd = readObject(Repository.Add, HashMap.class);
-        HashMap<String, String> stgRm = readObject(Repository.Rm, HashMap.class);
-        Assert.assertEquals(1, stgAdd.size()); // added but not yet committed
-        Assert.assertEquals(0, stgRm.size());
+        Assert.assertEquals(0, Repository.Add.size()); // added but not yet committed
+        Assert.assertEquals(1, Repository.Rm.size()); // added to rm area but not yet committed
 
     }
 }

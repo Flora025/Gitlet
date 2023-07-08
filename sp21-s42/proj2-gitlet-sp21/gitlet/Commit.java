@@ -22,15 +22,16 @@ public class Commit implements Serializable {
     public static final File COMMIT_FOLDER = join(Repository.GITLET_DIR, "commits");
 
     /** The message of this Commit. */
-    private String message;
+    private final String message;
     /** The timestamp of current Commit. */
-    private Date timestamp;
+    private final Date timestamp;
 
     /** Mapping of `filenames` to corresponding `Blob` objects.
      *  Example of mapping: {"hello.txt": "someSHA-1Hash"} */
     private HashMap<String, String> nameToBlob; //
     /** Parent of the current Commit: a sha-1 hash. */
-    private String parent;
+    private final String parent;
+    private final String id;
 
     /**
      * Constructor.
@@ -45,7 +46,24 @@ public class Commit implements Serializable {
         // references
         this.parent = parent;
         this.nameToBlob = nameToBlob;
+        this.id = getId();
     }
+
+    /**
+     * Constructor. Construct by cloning another Commit
+     * @param parent another Commit instance.
+     */
+    public Commit(Commit parent) {
+        // metadata
+        this.message = parent.getMessage();
+        this.timestamp = parent.getTimestamp();
+        // references
+        this.parent = parent.getId();
+        this.nameToBlob = nameToBlob;
+        this.id = parent.getId();
+    }
+
+
 
 
     /* Commit Functions */
@@ -56,7 +74,7 @@ public class Commit implements Serializable {
             COMMIT_FOLDER.mkdir();
         }
         // Create a new File for this Commit
-        File commitFile = join(COMMIT_FOLDER, this.getHash()); // the name of the commit is its sha1 hash
+        File commitFile = join(COMMIT_FOLDER, this.getId()); // the name of the commit is its sha1 hash
         try {
             commitFile.createNewFile();
         } catch (IOException e) {
@@ -67,11 +85,11 @@ public class Commit implements Serializable {
     }
 
     /** Gets the Commit object corresponding to the given sha-1 filename
-     *  @param shaName filename as sha-1 hash referring to a Commit object
+     *  @param id filename as sha-1 hash referring to a Commit object
      */
-    public static Commit getCommitFromSha(String shaName) {
+    public static Commit getCommitFromId(String id) {
         // Get the absolute file path from its sha-1 hash
-        File filePath = join(COMMIT_FOLDER, shaName);
+        File filePath = join(COMMIT_FOLDER, id);
         if (!filePath.exists()) {
             return null;
         }
@@ -79,6 +97,43 @@ public class Commit implements Serializable {
         return readObject(filePath, Commit.class);
     }
 
+    /** Update current Commit according to staged addition or removal.
+     * @param area can only be Add || Rm */
+    public void updateCommitMapTo(StagingArea area) {
+        if (area.getAreaName().equals("Add") || area.getAreaName().equals("add")) { // if this is the add
+            for (String plainName : area.nameSet()) {
+                // For all staged files, update/insert mappings
+                nameToBlob.put(plainName, area.get(plainName)); // update/add
+            }
+        } else {
+            // stageRemoval
+            for (String plainName : area.nameSet()) {
+                nameToBlob.remove(plainName); // rm
+            }
+        }
+    }
+
+    /* Commit Map operations */
+    public void put(String plainName, String id) {
+        nameToBlob.put(plainName, id);
+    }
+    /** remove a key-val set from the map
+     * @return id corresponding to the given key
+     */
+    public String remove(String plainName) {
+        return nameToBlob.remove(plainName);
+    }
+
+    /** Given a plainName, return the corresponding blob id in commit map
+     *  NOTE: this is a map-like operation */
+    public String get(String plainName) {
+        return nameToBlob.getOrDefault(plainName, "");
+    }
+
+    /** Given a filename, returns if a key with the PLAINNAME exists in the commit map. */
+    public boolean containsFile(String plainName) {
+        return nameToBlob.containsKey(plainName);
+    }
 
     /* Data getters */
 
@@ -93,7 +148,7 @@ public class Commit implements Serializable {
     }
 
     /** Returns the sha-1 hash of the Commit object. */
-    public String getHash() {
+    public String getId() {
         return sha1(this.message + this.timestamp.toString() + this.parent
                 + this.nameToBlob.toString());
     }
@@ -103,10 +158,15 @@ public class Commit implements Serializable {
                 + "\n" + this.nameToBlob.toString();
     }
 
-    /** Returns the plainName to blob hashmap of current commit.
-     * Example of mapping: {"hello.txt": "someSHA-1Hash"}*/
+    public Date getTimestamp() {
+        return this.timestamp;
+    }
+
+    /** Returns a COPY of the plainName to blob hashmap of current commit.
+     * Example of mapping: {"hello.txt": "someSHA-1Hash"} */
     public HashMap<String, String> getMap() {
-        return this.nameToBlob;
+        // !: COPY
+        return new HashMap<>(this.nameToBlob);
     }
 
 }

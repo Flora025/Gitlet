@@ -19,7 +19,7 @@ public class Blob implements Serializable {
     /* Instance variables */
 
     /** Name of the Blob (SHA-1 hashed) */
-    private final String shaName;
+    private final String id;
     /** The plain String of the original file's content */
     private final String plainContent;
     private final String plainName;
@@ -37,7 +37,7 @@ public class Blob implements Serializable {
         }
         this.plainContent = readContentsAsString(filePath);
         this.plainName = plainName;
-        this.shaName = sha1(plainName + plainContent); // MUST: hash in its name
+        this.id = sha1(plainName + plainContent); // MUST: hash in its name
     }
 
     public void saveBlob() {
@@ -45,7 +45,7 @@ public class Blob implements Serializable {
             BLOB_FOLDER.mkdir();
         }
         // Create a new File for this Blob
-        File blobFile = join(BLOB_FOLDER, this.getHash()); // the name of the commit is its sha1 hash
+        File blobFile = join(BLOB_FOLDER, this.getId()); // the name of the commit is its sha1 hash
         try {
             blobFile.createNewFile();
         } catch (IOException e) {
@@ -58,13 +58,9 @@ public class Blob implements Serializable {
 
     /* Data getters */
 
-    /** Returns the sha-1 hash of the Blob object. */
-    public String getHash() {
-        return shaName;
-    }
-
-    public String getShaName() {
-        return shaName; // same as hash
+    /** Returns the sha-1 hash (id) of the Blob object. */
+    public String getId() {
+        return id; // same as hash
     }
 
     public String getPlainName() {

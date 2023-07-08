@@ -20,6 +20,7 @@ public class Main {
         }
 
         String firstArg = args[0];
+        Repository repository = new Repository();
         switch(firstArg) {
             case "init":
                 try {
@@ -47,6 +48,9 @@ public class Main {
                     System.exit(0);
                 }
                 Repository.rm(args[1]);
+                break;
+            case "log":
+                Repository.log();
                 break;
         }
     }
