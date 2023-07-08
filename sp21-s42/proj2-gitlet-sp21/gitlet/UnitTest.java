@@ -158,4 +158,17 @@ public class UnitTest {
         Repository.globalLog(); // [ok]
         clean();
     }
+
+    /** Test Repository.find() */
+    @Test
+    public void testFind() {
+        try {
+            testRm();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        Repository.find("add fav songs"); // [ok]
+        clean();
+    }
 }
