@@ -69,7 +69,6 @@ public class UnitTest {
         Assert.assertEquals(expected, Repository.Add.getAreaMap());
     }
 
-    // TODO add tests for commit and rm
     /** Test Repository.commit() */
     @Test
     public void testCommit() throws IOException {
@@ -103,7 +102,7 @@ public class UnitTest {
 
         // call commit() func
         Repository.commit("add favorite bands");
-        message("[0] commit success"); // [ok]
+        // message("[0] commit success"); // [ok]
     }
 
     /** Test Repository.rm() */
@@ -123,14 +122,40 @@ public class UnitTest {
         Repository.add("yorushika.txt"); // now yrsk is in StagedAddition
         Repository.rm("yorushika.txt"); // remove yrsk
         // Expected behavior: yrsk removed from CWD, stg and the new Commit map
-        System.out.println(Repository.getHeadInfo());
+        // System.out.println(Repository.getHeadInfo());
         // Repository.commit("delete one"); // 【2】 commit FIXME
-        System.out.println(Repository.getHeadInfo());
+        // System.out.println(Repository.getHeadInfo());
 
 
         // finally, check Staged Area (should be clean)
         Assert.assertEquals(0, Repository.Add.size()); // added but not yet committed
         Assert.assertEquals(1, Repository.Rm.size()); // added to rm area but not yet committed
 
+    }
+
+    /** Test Repository.log() */
+    @Test
+    public void testLog() {
+        try {
+            testRm();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        Repository.log(); // [ok]
+        clean();
+    }
+
+    /** Test Repository.globalLog() */
+    @Test
+    public void testGlobalLog() {
+        try {
+            testRm();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        Repository.globalLog(); // [ok]
+        clean();
     }
 }

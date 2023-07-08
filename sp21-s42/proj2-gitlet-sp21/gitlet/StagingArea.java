@@ -16,7 +16,7 @@ public class StagingArea {
 
     /* Instance variables */
     public final File AREA_FILE;
-    private final String areaName;
+    public final String areaName;
     /** Mapping of plain file name to blob id in the staging area.
      *  CANNOT be accessed from without */
     private HashMap<String, String> nameToBlob; // plainName to Blob hash id
@@ -82,11 +82,6 @@ public class StagingArea {
     /** Gets the filepath of the specific staging area */
     public File getFilepath() {
         return this.AREA_FILE;
-    }
-
-    /** Gets the areaName of the specific staging area */
-    public String getAreaName() {
-        return this.areaName;
     }
 
     /** Gets the size of the specific staging area map */

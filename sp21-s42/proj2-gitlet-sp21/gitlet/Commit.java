@@ -30,7 +30,7 @@ public class Commit implements Serializable {
      *  Example of mapping: {"hello.txt": "someSHA-1Hash"} */
     private HashMap<String, String> nameToBlob; //
     /** Parent of the current Commit: a sha-1 hash. */
-    private final String parent;
+    private final String parent; // TODO[design]: TB revised later for multiple parents
     private final String id;
 
     /**
@@ -88,6 +88,9 @@ public class Commit implements Serializable {
      *  @param id filename as sha-1 hash referring to a Commit object
      */
     public static Commit getCommitFromId(String id) {
+        if (id == null || id == "") {
+            return null;
+        }
         // Get the absolute file path from its sha-1 hash
         File filePath = join(COMMIT_FOLDER, id);
         if (!filePath.exists()) {
@@ -100,7 +103,7 @@ public class Commit implements Serializable {
     /** Update current Commit according to staged addition or removal.
      * @param area can only be Add || Rm */
     public void updateCommitMapTo(StagingArea area) {
-        if (area.getAreaName().equals("Add") || area.getAreaName().equals("add")) { // if this is the add
+        if (area.areaName.equals("Add") || area.areaName.equals("add")) { // if this is the add
             for (String plainName : area.nameSet()) {
                 // For all staged files, update/insert mappings
                 nameToBlob.put(plainName, area.get(plainName)); // update/add
@@ -143,8 +146,8 @@ public class Commit implements Serializable {
     }
 
     /** Returns the sha-1 hash of the Commit's parent Commit. */
-    public String getParent() {
-        return this.parent;
+    public Commit getParent() {
+        return getCommitFromId(this.parent);
     }
 
     /** Returns the sha-1 hash of the Commit object. */
