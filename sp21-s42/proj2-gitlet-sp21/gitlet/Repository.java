@@ -24,9 +24,9 @@ public class Repository {
     /* Files */
     // Note: all pointers are represented as hashcode and stored in Files.
     /** The file in .gitlet/ which stores the Commit that HEAD is pointing to. */
-    private static File HEAD = join(GITLET_DIR, "HEAD");
+    public static File HEAD = join(GITLET_DIR, "HEAD");
     /** The File in .gitlet/ which stores the Commit Master is pointing to. */
-    private static File Master = join(GITLET_DIR, "Master");
+    public static File Master = join(GITLET_DIR, "Master");
     /** Staging area for addition. Data are saved as a Map object*/
     public static File Add = join(GITLET_DIR, "add");
     /** Staging area for removal */
@@ -59,8 +59,8 @@ public class Repository {
         firstCommit.saveCommit();
 
         // 3. Initialize HEAD and master pointers
-        updateHeadTo(firstCommit); // designate HEAD -> initCommit
-        updateMasterTo(firstCommit); // designate Master -> initCommit
+        updatePointerTo(HEAD, firstCommit); // designate HEAD -> initCommit
+        updatePointerTo(Master, firstCommit); // designate Master -> initCommit
     }
 
     /** Given the plain name of a file,
@@ -82,11 +82,11 @@ public class Repository {
         // If this shaName does not match the shaName of the same file in the HEAD (i.e. cur) commit
         //    || there is no such file in the HEAD commit,
         // -> the file is changed || newly added, update the mapping
-        Commit curHead = Repository.getHead();
+        Commit curHead = Repository.getPointer(HEAD);
         Map<String, String> nameToBlob = curHead.getMap();
         if (!shaName.equals(nameToBlob.getOrDefault(plainName, ""))) {
             // Add the new mapping to staging area for addition (Add)
-            HashMap<String, String> stagedAddition = getAdd();
+            HashMap<String, String> stagedAddition = getArea(Add);
             stagedAddition.put(plainName, shaName);
             writeObject(Add, stagedAddition); // overwrite
         }
@@ -100,8 +100,8 @@ public class Repository {
      */
     public static void commit(String message) {
         // Read in the plainName-to-blobHash map
-        HashMap<String, String> stagedAddition = getAdd();
-        HashMap<String, String> stagedRemoval = getRm();
+        HashMap<String, String> stagedAddition = getArea(Add);
+        HashMap<String, String> stagedRemoval = getArea(Rm);
 
         // Failure cases: if no file has been staged
         if (stagedAddition.size() == 0) {
@@ -110,32 +110,30 @@ public class Repository {
         }
 
         // Clone the parent Commit and update meta data
-        Commit parentCommit = getHead();
-        HashMap<String, String> curMap = new HashMap<>(parentCommit.getMap()); // a copy of parent's map
-        Commit curCommit = new Commit(message, parentCommit.getHash(), curMap, new Date());
+        // FIXME[refactor]: abstraction
+        Commit parentCommit = getPointer(HEAD);
+        Commit curCommit = new Commit(message, parentCommit.getHash(),
+                new HashMap<>(parentCommit.getMap()), new Date()); // receives a copy of parent's map
 
         /** @implNote:
          * Rm records files once `staged` and just deleted from the WD.
          * The files are no longer in the WD, but are not yet updated in the Commit mappings.*/
 
         // Update current Commit according to staged addition and removal
-        // FIXME[refactor]: abstraction
-        for (String plainName : stagedAddition.keySet()) {
-            // For all staged files, update/insert mappings
-            curMap.put(plainName, stagedAddition.get(plainName));
-        }
-        for (String plainName : stagedRemoval.keySet()) {
-            curMap.remove(plainName);
-        }
+        updateCommitMapTo(curCommit, Add);
+        updateCommitMapTo(curCommit, Rm);
 
-        // Clean the staging area (Add && Rm)
-        cleanAdd();
-        cleanRm();
+        curCommit.saveCommit();
 
         // Update HEAD and MASTER pointers
-        updateMasterTo(curCommit);
-        updateHeadTo(curCommit);
+        updatePointerTo(HEAD, curCommit);
+        updatePointerTo(Master, curCommit);
+
+        // Clean the staging area (Add && Rm)
+        cleanStagingArea(Add);
+        cleanStagingArea(Rm);
     }
+
 
     /**
      * Unstage the file if it is currently staged for addition.
@@ -144,8 +142,8 @@ public class Repository {
      * @param plainName The plain name of the file to be removed.
      */
     public static void rm(String plainName) {
-        HashMap<String, String> stagedAddition = getAdd(); // staged or not
-        HashMap<String, String> headMap = getHead().getMap(); // tracked or not
+        HashMap<String, String> stagedAddition = getArea(Add); // staged or not
+        HashMap<String, String> headMap = getPointer(HEAD).getMap(); // tracked or not
         boolean isStaged = stagedAddition.containsKey(plainName);
         boolean isTracked = headMap.containsKey(plainName);
 
@@ -158,7 +156,9 @@ public class Repository {
         // If the file exists in stagedAddition,
         // remove it from add and add to stagedRemoval
         if (isStaged) {
-            HashMap<String, String> stagedRemoval = getRm();
+            // remove from ad
+            stagedAddition.remove(plainName);
+            HashMap<String, String> stagedRemoval = getArea(Rm);
             stagedRemoval.put(plainName, stagedAddition.remove(plainName));
         }
 
@@ -171,52 +171,63 @@ public class Repository {
 
     }
 
+
+
+
     /* HEAD and Master management */
 
-    /** Gets the Commit that current HEAD is pointing to. */
-    public static Commit getHead() {
-        String shaName = readContentsAsString(HEAD);
-        return Commit.getCommitFromSha(shaName);
+    /** get String info of HEAD commit, tmp used for testing */
+    public static String getHeadInfo() {
+        Commit head = getPointer(HEAD);
+        return head.getData();
     }
 
-    /** Gets the Commit that current HEAD is pointing to. */
-    public static Commit getMaster() {
-        String shaName = readContentsAsString(Master);
+    /** Gets the Commit that a given pointer P is pointing to.
+     *  Usage: getPointer(HEAD), getPointer(Master) */
+    private static Commit getPointer(File p) {
+        String shaName = readContentsAsString(p);
         return Commit.getCommitFromSha(shaName);
     }
 
     // FIXME[design]: receives Commit or Hash?
-    /** Updates HEAD to point to a specific Commit */
-    private static void updateHeadTo(Commit commit) {
+    /** Updates a pointer P to point to a specific Commit
+     *  Usage: updatePointerTo(HEAD, commit) HEAD -> commit
+     *         updatePointerTo(Master, commit) Master -> commit*/
+    private static void updatePointerTo(File p, Commit commit) {
         // update by internally overwriting the hash (i.e. filename) of the Commit
-        writeContents(HEAD, commit.getHash());
+        writeContents(p, commit.getHash());
     }
-
-    // FIXME[design]: receives Commit or Hash?
-    /** Updates Master to point to a specific Commit */
-    private static void updateMasterTo(Commit commit) {
-        // update by internally overwriting the hash (i.e. filename) of the Commit
-        writeContents(Master, commit.getHash());
-    }
-
 
     /* Staging area helper */
 
     /** Removes all mappings in the staged area for addition. */
-    private static void cleanAdd() {
-        writeObject(Add, new HashMap<String, String>());
+    private static void cleanStagingArea(File area) {
+        writeObject(area, new HashMap<String, String>());
     }
 
-    /** Removes all mappings in the staged area for removal. */
-    private static void cleanRm() {
-        writeObject(Rm, new HashMap<String, String>());
+
+    /** Gets the hashmap in a specific staging area */
+    private static HashMap<String, String> getArea(File area) {
+        return readObject(area, HashMap.class);
     }
 
-    private static HashMap<String, String> getAdd() {
-         return readObject(Add, HashMap.class);
-    }
+    /** Update current Commit according to staged addition or removal
+     * @param area can only be Add || Rm */
+    private static void updateCommitMapTo(Commit commit, File area) {
+        HashMap<String, String> stagedArea = getArea(area);
+        HashMap<String, String> curMap = commit.getMap();
+        // FIXME[concern]: == ?
+        if (area.equals(Add)) {
+            for (String plainName : stagedArea.keySet()) {
+                // For all staged files, update/insert mappings
+                curMap.put(plainName, stagedArea.get(plainName)); // update/add
+            }
+        } else {
+            // stageRemoval
+            for (String plainName : stagedArea.keySet()) {
+                curMap.remove(plainName); // rm
+            }
+        }
 
-    private static HashMap<String, String> getRm() {
-        return readObject(Rm, HashMap.class);
     }
 }

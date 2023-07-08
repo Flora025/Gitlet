@@ -97,6 +97,11 @@ public class Commit implements Serializable {
         return sha1(this.message + this.timestamp.toString() + this.parent
                 + this.nameToBlob.toString());
     }
+    /** Returns the String data of the Commit object. */
+    public String getData() {
+        return this.message + "\n" + this.timestamp.toString() + "\n" + this.parent
+                + "\n" + this.nameToBlob.toString();
+    }
 
     /** Returns the plainName to blob hashmap of current commit.
      * Example of mapping: {"hello.txt": "someSHA-1Hash"}*/

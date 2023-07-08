@@ -65,6 +65,41 @@ class Utils {
 
     /* FILE DELETION */
 
+    /** Cleans .gitlet repo and all .txt files in CWD */
+    public static void cleanRepo(File CWD) {
+        // 删除 .gitlet 目录及其下所有文件
+        File gitletDir = join(CWD, ".gitlet");
+        deleteDirectory(gitletDir);
+
+        // 删除 CWD 下所有后缀名为 .txt 的文件
+        File[] txtFiles = CWD.listFiles((dir, name) -> name.endsWith(".txt"));
+        if (txtFiles != null) {
+            for (File txtFile : txtFiles) {
+                deleteFile(txtFile);
+            }
+        }
+    }
+
+    /** Helper: delete directory and all its contents */
+    private static void deleteDirectory(File dir) {
+        if (dir.isDirectory()) {
+            File[] files = dir.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    deleteDirectory(file);
+                }
+            }
+        }
+        deleteFile(dir);
+    }
+
+    /** Helper: delete file */
+    private static void deleteFile(File file) {
+        if (!file.delete()) {
+            throw new RuntimeException("Failed to delete file: " + file);
+        }
+    }
+
     /** Deletes FILE if it exists and is not a directory.  Returns true
      *  if FILE was deleted, and false otherwise.  Refuses to delete FILE
      *  and throws IllegalArgumentException unless the directory designated by
