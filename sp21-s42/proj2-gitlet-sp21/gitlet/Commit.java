@@ -46,7 +46,8 @@ public class Commit implements Serializable {
         // references
         this.parent = parent;
         this.nameToBlob = nameToBlob;
-        this.id = getId();
+        this.id = sha1(this.message + this.timestamp.toString() + this.parent
+                + this.nameToBlob.toString());
     }
 
     /**
@@ -138,6 +139,11 @@ public class Commit implements Serializable {
         return nameToBlob.containsKey(plainName);
     }
 
+    /** Returns true if two Commits object refer to the same commit */
+    public boolean compareTo(Commit anotherCommit) {
+        return anotherCommit.getId().contentEquals(this.id);
+    }
+
     /* Data getters */
 
     /** Returns the message of the Commit. */
@@ -152,8 +158,7 @@ public class Commit implements Serializable {
 
     /** Returns the sha-1 hash of the Commit object. */
     public String getId() {
-        return sha1(this.message + this.timestamp.toString() + this.parent
-                + this.nameToBlob.toString());
+        return this.id;
     }
     /** Returns the String data of the Commit object. */
     public String getData() {
