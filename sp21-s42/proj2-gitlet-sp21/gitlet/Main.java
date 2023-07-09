@@ -3,6 +3,7 @@ package gitlet;
 import java.io.IOException;
 
 import static gitlet.Utils.*;
+import static gitlet.Repository.*;
 
 /** Driver class for Gitlet, a subset of the Git version-control system.
  *  @author flora
@@ -24,7 +25,7 @@ public class Main {
             /* Usage: java gitlet.Main init */
             case "init":
                 try {
-                    Repository.init();
+                    init();
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -34,7 +35,7 @@ public class Main {
                 if (args.length < 2) {
                     System.exit(0);
                 }
-                Repository.add(args[1]);
+                add(args[1]);
                 break;
             /* Usage: java gitlet.Main commit [message] */
             case "commit":
@@ -42,33 +43,33 @@ public class Main {
                     message("Please enter a commit message");
                     System.exit(0);
                 }
-                Repository.commit(args[1]);
+                commit(args[1]);
                 break;
             /* Usage: java gitlet.Main rm [file name] */
             case "rm":
                 if (args.length < 2) {
                     System.exit(0);
                 }
-                Repository.rm(args[1]);
+                rm(args[1]);
                 break;
             /* Usage: java gitlet.Main log */
             case "log":
-                Repository.log();
+                log();
                 break;
             /* Usage: java gitlet.Main log */
             case "global-log":
-                Repository.globalLog();
+                globalLog();
                 break;
             /* Usage: java gitlet.Main find [commit message] */
             case "find":
                 if (args.length < 2) {
                     System.exit(0);
                 }
-                Repository.find(args[1]);
+                find(args[1]);
                 break;
             /* Usage: java gitlet.Main status */
             case "status":
-                // TODO
+                status();
                 break;
             /* Usage:
              * 1. java gitlet.Main checkout -- [file name]
