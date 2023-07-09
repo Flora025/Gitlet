@@ -172,4 +172,17 @@ public class UnitTest {
         Repository.find("this msg never exists"); // [ok]
         clean();
     }
+
+    /** Test Repository.status() */
+    @Test
+    public void testStatus() {
+        try {
+            testRm();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        Repository.status();
+        clean();
+    }
 }

@@ -3,6 +3,7 @@ package gitlet;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 
 import static gitlet.Utils.*;
@@ -94,4 +95,11 @@ public class StagingArea {
         // COPY
         return new HashMap<>(nameToBlob);
     }
+
+    /** Returns a set of all file names currently in the staging area
+     *  (equivalent to map.keySet() */
+    public Set<String> getFiles() {
+        return nameToBlob.keySet();
+    }
+
 }
