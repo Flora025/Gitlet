@@ -39,20 +39,26 @@ public class StagingArea {
         writeObject(AREA_FILE, nameToBlob); // Add and Rm must be initialized in advance
     }
 
+    /** Gets the Blob corresponding to the id/hash of the given key in the area map */
+    public Blob get(String plainName) {
+        return Blob.getBlobFromId(nameToBlob.get(plainName));
+    }
 
     /**
      * Adds a new (key, value) mapping into the staging area.
      */
-    public void put(String plainName, String id) {
-        this.nameToBlob.put(plainName, id);
+    public void put(String plainName, Blob blob) {
+        String blobId = blob.getId();
+        this.nameToBlob.put(plainName, blobId);
         writeObject(AREA_FILE, nameToBlob); // overwrite the original file as an update
     }
 
-    /** Given a key, removes a map item from the staging area. */
-    public String remove(String plainName) {
-        String val = nameToBlob.remove(plainName);
+    /** Given a key, removes a map item from the staging area.
+     *  returns a blob item mapped to the plainName. */
+    public Blob remove(String plainName) {
+        String blobId = nameToBlob.remove(plainName);
         writeObject(AREA_FILE, nameToBlob); // overwrite the original file as an update
-        return val;
+        return Blob.getBlobFromId(blobId);
     }
 
 
@@ -75,10 +81,6 @@ public class StagingArea {
 
     /* Data */
 
-    /** Gets the id/hash of the given key in the area map */
-    public String get(String plainName) {
-        return nameToBlob.get(plainName);
-    }
 
     /** Gets the filepath of the specific staging area */
     public File getFilepath() {
