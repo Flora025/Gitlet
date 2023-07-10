@@ -113,7 +113,11 @@ public class Main {
                 if (args.length != 2) {
                     System.exit(0);
                 }
-                reset(args[1]);
+                try {
+                    reset(args[1]);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
                 break;
             case "merge":
                 break;
