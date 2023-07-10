@@ -92,7 +92,16 @@ public class Main {
                     checkoutSpecifiedFile(args[1], args[3]);
                 }
                 break;
+            /* Usage: java gitlet.Main branch [branch name] */
             case "branch":
+                if (args.length != 2) {
+                    System.exit(0);
+                }
+                try {
+                    branch(args[1]);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
                 break;
             case "rm-branch":
                 break;

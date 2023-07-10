@@ -192,4 +192,14 @@ public class UnitTest {
         // TODO
         clean();
     }
+
+    /** Test Repository.branch(xxx) */
+    @Test
+    public void testBranch() throws IOException {
+        // TODO
+        // add & commits
+
+        Repository.branch("newBranch");
+        clean();
+    }
 }
