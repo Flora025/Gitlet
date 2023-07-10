@@ -103,12 +103,14 @@ public class Main {
                     throw new RuntimeException(e);
                 }
                 break;
+            /* Usage: java gitlet.Main rm-branch [branch name] */
             case "rm-branch":
                 if (args.length != 2) {
                     System.exit(0);
                 }
                 rmBranch(args[1]);
                 break;
+            /* Usage: java gitlet.Main reset [commit id] */
             case "reset":
                 if (args.length != 2) {
                     System.exit(0);
@@ -119,7 +121,12 @@ public class Main {
                     throw new RuntimeException(e);
                 }
                 break;
+            /* Usage: java gitlet.Main merge [branch name] */
             case "merge":
+                if (args.length != 2) {
+                    System.exit(0);
+                }
+                merge(args[1]);
                 break;
         }
     }

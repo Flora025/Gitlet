@@ -3,10 +3,7 @@ package gitlet;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static gitlet.Utils.*;
 
@@ -31,40 +28,25 @@ public class Commit implements Serializable {
      *  Example of mapping: {"hello.txt": "someSHA-1Hash"} */
     private HashMap<String, String> nameToBlob; //
     /** Parent of the current Commit: a sha-1 hash. */
-    private final String parent; // TODO[design]: TB revised later for multiple parents
+    private final List<String> parents;
     private final String id;
 
     /**
      * Constructor.
      * @param msg Commit message.
-     * @param parent Parent of the Commit instance.
+     * @param parents Parent of the Commit instance.
      * @param timestamp Timestamp of the Commit instance.
      */
-    public Commit(String msg, String parent, HashMap<String, String> nameToBlob, Date... timestamp) {
+    public Commit(String msg, List<String> parents, HashMap<String, String> nameToBlob, Date... timestamp) {
         // metadata
         this.message = msg;
         this.timestamp = timestamp[0];
         // references
-        this.parent = parent;
+        this.parents = parents;
         this.nameToBlob = nameToBlob;
-        this.id = sha1(this.message + this.timestamp.toString() + this.parent
+        this.id = sha1(this.message + this.timestamp.toString() + this.parents
                 + this.nameToBlob.toString());
     }
-
-    /**
-     * Constructor. Construct by cloning another Commit
-     * @param parent another Commit instance.
-     */
-    public Commit(Commit parent) {
-        // metadata
-        this.message = parent.getMessage();
-        this.timestamp = parent.getTimestamp();
-        // references
-        this.parent = parent.getId();
-        this.nameToBlob = nameToBlob;
-        this.id = parent.getId();
-    }
-
 
 
 
@@ -163,8 +145,12 @@ public class Commit implements Serializable {
     }
 
     /** Returns the sha-1 hash of the Commit's parent Commit. */
-    public Commit getParent() {
-        return getCommitFromId(this.parent);
+    public List<Commit> getParent() {
+        List<Commit> res = new ArrayList<>();
+        for (String pId : parents) {
+            res.add(getCommitFromId(pId));
+        }
+        return res;
     }
 
     /** Returns the sha-1 hash of the Commit object. */
@@ -173,7 +159,7 @@ public class Commit implements Serializable {
     }
     /** Returns the String data of the Commit object. */
     public String getData() {
-        return this.message + "\n" + this.timestamp.toString() + "\n" + this.parent
+        return this.message + "\n" + this.timestamp.toString() + "\n" + this.parents.toString()
                 + "\n" + this.nameToBlob.toString();
     }
 
