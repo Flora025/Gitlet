@@ -6,6 +6,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import static gitlet.Utils.*;
 
@@ -135,13 +136,18 @@ public class Commit implements Serializable {
      *  NOTE: this is a map-like operation */
     public Blob get(String plainName) {
         // If the blob does not exist, return an empty string.
-        String id = nameToBlob.getOrDefault(plainName, "");
+        String id = nameToBlob.getOrDefault(plainName, null);
         return Blob.getBlobFromId(id);
     }
 
     /** Given a filename, returns if a key with the PLAINNAME exists in the commit map. */
     public boolean containsFile(String plainName) {
         return nameToBlob.containsKey(plainName);
+    }
+
+    /** Returns a set of filenames in the current commit */
+    public Set<String> nameSet() {
+        return nameToBlob.keySet();
     }
 
     /** Returns true if two Commits object refer to the same commit */

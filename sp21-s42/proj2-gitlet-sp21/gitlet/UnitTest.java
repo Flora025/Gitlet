@@ -185,4 +185,11 @@ public class UnitTest {
         Repository.status();
         clean();
     }
+
+    /** Test Repository.checkout(xxx) */
+    @Test
+    public void testCheckout() {
+        // TODO
+        clean();
+    }
 }

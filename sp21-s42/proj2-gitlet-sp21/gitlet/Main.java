@@ -76,7 +76,29 @@ public class Main {
              * 2. java gitlet.Main checkout [commit id] -- [file name]
              * 3. java gitlet.Main checkout [branch name] */
             case "checkout":
-                // TODO
+                int n = args.length;
+                if (n < 2) {
+                    System.exit(0);
+                }
+                if (n == 2) {
+                    try {
+                        checkoutBranch(args[1]); // args[0] == "checkout"
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                } else if (n == 3) {
+                    checkoutHeadFile(args[2]);
+                } else if (n == 4) {
+                    checkoutSpecifiedFile(args[1], args[3]);
+                }
+                break;
+            case "branch":
+                break;
+            case "rm-branch":
+                break;
+            case "reset":
+                break;
+            case "merge":
                 break;
         }
     }
