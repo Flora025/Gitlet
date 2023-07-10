@@ -107,31 +107,36 @@ public class Commit implements Serializable {
         if (area.areaName.equals("Add") || area.areaName.equals("add")) { // if this is the add
             for (String plainName : area.nameSet()) {
                 // For all staged files, update/insert mappings
-                nameToBlob.put(plainName, area.get(plainName)); // update/add
+                this.put(plainName, area.get(plainName)); // this == curCommit, update/add new entry
             }
         } else {
             // stageRemoval
             for (String plainName : area.nameSet()) {
-                nameToBlob.remove(plainName); // rm
+                this.remove(plainName); // rm
             }
         }
     }
 
     /* Commit Map operations */
-    public void put(String plainName, String id) {
-        nameToBlob.put(plainName, id);
+    /** Insert a key-value set into the nameToBlob map of the commit */
+    public void put(String plainName, Blob blob) {
+        String id = blob.getId();
+        nameToBlob.put(plainName, id); // what's ACTUALLY put into the map is the ID
     }
     /** remove a key-val set from the map
-     * @return id corresponding to the given key
+     * @return Blob of the id corresponding to the given key
      */
-    public String remove(String plainName) {
-        return nameToBlob.remove(plainName);
+    public Blob remove(String plainName) {
+        String blobId = nameToBlob.remove(plainName);
+        return Blob.getBlobFromId(blobId);
     }
 
     /** Given a plainName, return the corresponding blob id in commit map
      *  NOTE: this is a map-like operation */
-    public String get(String plainName) {
-        return nameToBlob.getOrDefault(plainName, "");
+    public Blob get(String plainName) {
+        // If the blob does not exist, return an empty string.
+        String id = nameToBlob.getOrDefault(plainName, "");
+        return Blob.getBlobFromId(id);
     }
 
     /** Given a filename, returns if a key with the PLAINNAME exists in the commit map. */

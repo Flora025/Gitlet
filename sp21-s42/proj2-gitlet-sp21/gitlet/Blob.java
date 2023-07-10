@@ -55,6 +55,39 @@ public class Blob implements Serializable {
         writeObject(blobFile, this);
     }
 
+    /** Returns true if two Commits object refer to the same commit */
+    public boolean compareTo(Blob anotherBlob) {
+        return anotherBlob.getId().contentEquals(this.id);
+    }
+
+    /** Converts a blob back into a file, and write to the given new file path */
+    public static void readContentToFile(Blob blob, File newFilepath) {
+        String blobId = blob.getId();
+        // Gets the blob
+        Blob content = getBlobFromId(blobId);
+        // Reads the blob's plainContent into the new File
+        writeContents(newFilepath, content.getPlainContent()); // overwrite
+
+    }
+
+    /** Gets the Commit object corresponding to the given sha-1 filename
+     *  @param id filename as sha-1 hash referring to a Commit object
+     */
+    public static Blob getBlobFromId(String id) {
+        if (id == null || id == "") {
+            return null;
+        }
+        // Get the absolute file path from its sha-1 hash
+        File filePath = join(BLOB_FOLDER, id);
+        if (!filePath.exists()) {
+            return null;
+        }
+        // Return the Blob obj if it exists
+        return readObject(filePath, Blob.class);
+    }
+
+
+
 
     /* Data getters */
 
