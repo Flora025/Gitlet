@@ -104,8 +104,16 @@ public class Main {
                 }
                 break;
             case "rm-branch":
+                if (args.length != 2) {
+                    System.exit(0);
+                }
+                rmBranch(args[1]);
                 break;
             case "reset":
+                if (args.length != 2) {
+                    System.exit(0);
+                }
+                reset(args[1]);
                 break;
             case "merge":
                 break;

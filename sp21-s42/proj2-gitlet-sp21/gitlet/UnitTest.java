@@ -202,4 +202,15 @@ public class UnitTest {
         Repository.branch("newBranch");
         clean();
     }
+
+    /** Test Repository.branch(xxx) */
+    @Test
+    public void testRmBranch() throws IOException {
+        // TODO
+        testBranch();
+
+        Repository.rmBranch("newBranch");
+        clean();
+    }
+
 }
