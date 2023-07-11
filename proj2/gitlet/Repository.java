@@ -38,7 +38,7 @@ public class Repository {
     /** The file in .gitlet/ which stores the Commit that HEAD is pointing to. */
     public static File HEAD = join(GITLET_DIR, "HEAD");
     /** The File in .gitlet/ which stores the Commit Master is pointing to. */
-    public static File Master = join(BRANCH_DIR, "Master");
+    public static File Master = join(BRANCH_DIR, "master");
     /** Staging area for addition. Data are saved as a Map object*/
     public static final File ADD_FILE = join(GITLET_DIR, "Add");
     /** Staging area for removal */
@@ -62,7 +62,7 @@ public class Repository {
         StagingArea Rm = new StagingArea("Rm", RM_FILE);
         Rm.saveStage(RM_FILE);
 
-        writeContents(curBranchName, "Master");
+        writeContents(curBranchName, "master");
     }
 
     /** Initialize .gitlet repository in the current directory. */
@@ -121,6 +121,10 @@ public class Repository {
      * @param message Commit message.
      */
     public static void commit(String message) {
+        if (message.equals("")) {
+            message("Please enter a commit message.");
+            System.exit(0);
+        }
         StagingArea Add = getStage(ADD_FILE);
         StagingArea Rm = getStage(RM_FILE);
 
@@ -212,6 +216,7 @@ public class Repository {
             printCommitInfo(curCommit, sdf);
             curCommit = curCommit.getParent() == null ? null : curCommit.getParent().get(0); // first parent
         }
+
     }
 
     /** Displays information about all commits ever made. */
@@ -259,7 +264,7 @@ public class Repository {
             for (String branchName : branches) {
                 // For each branch, print out its name,
                 // and marks the current branch with a *.
-                message(branchName.equals(readContentsAsString(curBranchName)) ? ("*" + branchName) : branchName);
+                message(branchName.equals(readContentsAsString(curBranchName)) ? "\\*" + branchName : branchName);
             }
         }
         message("");
@@ -302,7 +307,11 @@ public class Repository {
      *    java gitlet.Main checkout [commit id] -- [file name]
      * 3. Takes all files in the commit at the head of the given branch, and puts them in the working directory
      *    java gitlet.Main checkout [branch name] */
-    public static void checkoutHeadFile(String plainName) {
+    public static void checkoutHeadFile(String plainName, String operand) {
+        if (!operand.equals("--")) {
+            message("Incorrect operands.");
+            System.exit(0);
+        }
         // Get head Commit
         Commit head = getPointer(HEAD);
         // Get the file's blob version (content)
@@ -317,7 +326,11 @@ public class Repository {
             System.exit(0);
         }
     }
-    public static void checkoutSpecifiedFile(String commitId, String plainName) {
+    public static void checkoutSpecifiedFile(String commitId, String plainName, String operand) {
+        if (!operand.equals("--")) {
+            message("Incorrect operands.");
+            System.exit(0);
+        }
         // 1. Get specified Commit
         Commit commit = Commit.getCommitFromId(commitId);
         if (commit == null) {
@@ -368,7 +381,7 @@ public class Repository {
             // 1) the file is tracked in curBranch as well as checked-out branch -> replace the Blob
             if (head.containsFile(plainName) && branchHead.containsFile(plainName)) {
                 // Call checkoutSpecifiedFile(commitId, plainName) on the file
-                checkoutSpecifiedFile(commitId, plainName);
+                checkoutSpecifiedFile(commitId, plainName, "--");
             }
             // 2) the file is not tracked in the checkedout branch, but only curBranch -> delete the file
             else if (head.containsFile(plainName) && !branchHead.containsFile(plainName)) {
@@ -426,7 +439,7 @@ public class Repository {
             message("Cannot remove the current branch.");
         }
 
-        restrictedDelete(branchPath);
+       branchPath.delete();
     }
 
     /** Checks out all the files tracked by the given commit.
@@ -454,7 +467,7 @@ public class Repository {
             // 1) the file is tracked in curBranch as well as checked-out branch -> replace the Blob
             if (head.containsFile(plainName) && newHead.containsFile(plainName)) {
                 // Call checkoutSpecifiedFile(commitId, plainName) on the file
-                checkoutSpecifiedFile(commitId, plainName);
+                checkoutSpecifiedFile(commitId, plainName, "--");
             }
             // 2) the file is not tracked in the checkedout branch, but only curBranch -> delete the file
             else if (head.containsFile(plainName) && !newHead.containsFile(plainName)) {

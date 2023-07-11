@@ -87,9 +87,9 @@ public class Main {
                         throw new RuntimeException(e);
                     }
                 } else if (n == 3) {
-                    checkoutHeadFile(args[2]);
+                    checkoutHeadFile(args[2], args[1]);
                 } else if (n == 4) {
-                    checkoutSpecifiedFile(args[1], args[3]);
+                    checkoutSpecifiedFile(args[1], args[3], args[2]);
                 }
                 break;
             /* Usage: java gitlet.Main branch [branch name] */
