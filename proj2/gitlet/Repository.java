@@ -40,11 +40,12 @@ public class Repository {
     /** The File in .gitlet/ which stores the Commit Master is pointing to. */
     public static File Master = join(BRANCH_DIR, "Master");
     /** Staging area for addition. Data are saved as a Map object*/
-    public static StagingArea Add;
+    public static final File ADD_FILE = join(GITLET_DIR, "Add");
     /** Staging area for removal */
-    public static StagingArea Rm;
+    public static final File RM_FILE = join(GITLET_DIR, "Rm");
 
-    private static String curBranchName;
+
+    private static final File curBranchName = join(GITLET_DIR, "curBranch");
 
 
     /* Commands */
@@ -54,9 +55,14 @@ public class Repository {
         BRANCH_DIR.mkdir();
         HEAD.createNewFile();
         Master.createNewFile();
-        Add = new StagingArea("Add");
-        Rm = new StagingArea("Rm");
-        curBranchName = "Master";
+        curBranchName.createNewFile();
+        // init add and rm
+        StagingArea Add = new StagingArea("Add", ADD_FILE);
+        Add.saveStage(ADD_FILE);
+        StagingArea Rm = new StagingArea("Rm", RM_FILE);
+        Rm.saveStage(RM_FILE);
+
+        writeContents(curBranchName, "Master");
     }
 
     /** Initialize .gitlet repository in the current directory. */
@@ -103,6 +109,7 @@ public class Repository {
         // -> the file is changed || newly added, update the mapping
         if (headBlob == null || !curBlob.compareTo(headBlob)) {
             // Add the new mapping to staging area for addition (Add)
+            StagingArea Add = getStage(ADD_FILE);
             Add.put(plainName, curBlob);
         }
         // Else if the two matches -> No changes in the file, and thus nothing happens
@@ -114,8 +121,11 @@ public class Repository {
      * @param message Commit message.
      */
     public static void commit(String message) {
+        StagingArea Add = getStage(ADD_FILE);
+        StagingArea Rm = getStage(RM_FILE);
+
         // Failure cases: if no file has been staged
-        if (Add.size() == 0) {
+        if (Add.size() == 0 && Rm.size() == 0) {
             message("No changes added to the commit.");
             System.exit(0);
         }
@@ -147,6 +157,7 @@ public class Repository {
     }
 
 
+
     /**
      * Unstage the file if it is currently staged for addition.
      * If the file is tracked in the current commit,
@@ -155,29 +166,31 @@ public class Repository {
      */
     public static void rm(String plainName) {
         Commit head = getPointer(HEAD);
+        StagingArea Add = getStage(ADD_FILE);
+        StagingArea Rm = getStage(RM_FILE);
+
         boolean isStaged = Add.containsFile(plainName); // staged in Add or not
         boolean isTracked = head.containsFile(plainName); // tracked or not
 
         // Failure cases: if the file is neither `staged` nor `tracked`
-        if (!isStaged && (!isTracked)) {
+        if (!isStaged && !isTracked) {
             message("No reason to remove the file.");
             System.exit(0);
         }
 
-        // If the file exists in stagedAddition,
-        // remove it from add and add to stagedRemoval
         if (isStaged) {
             // remove from Add
-            Blob blob = Add.remove(plainName);
-            // put into Rm
-            Rm.put(plainName, blob);
+            Add.remove(plainName);
         }
 
         // If the file is tracked in curCommit[HEAD],
         // remove it from the working directory
         if (isTracked) {
-            File delFile = join(CWD, plainName); // abs path of the file to be deleted
-            restrictedDelete(delFile);
+            Blob blob = head.get(plainName);
+            Rm.put(plainName, blob);
+            if (join(CWD, plainName).exists()) {
+                restrictedDelete(join(CWD, plainName)); // abs path of the file to be deleted
+            }
         }
 
     }
@@ -197,7 +210,7 @@ public class Repository {
         while (curCommit != null) {
             // For each Commit, print out log info
             printCommitInfo(curCommit, sdf);
-            curCommit = curCommit.getParent().get(0); // first parent
+            curCommit = curCommit.getParent() == null ? null : curCommit.getParent().get(0); // first parent
         }
     }
 
@@ -241,28 +254,35 @@ public class Repository {
         // Print all branches, with current branch marked with a *
         message("=== Branches ===");
         List<String> branches = plainFilenamesIn(BRANCH_DIR);
-        assert branches != null;
-        Commit head = getPointer(HEAD);
-        for (String branchName : branches) {
-            // For each branch, print out its name,
-            // and marks the current branch with a *.
-            message(branchName.equals(curBranchName) ? ("*" + branchName) : branchName);
+        if (branches != null) {
+            Commit head = getPointer(HEAD);
+            for (String branchName : branches) {
+                // For each branch, print out its name,
+                // and marks the current branch with a *.
+                message(branchName.equals(readContentsAsString(curBranchName)) ? ("*" + branchName) : branchName);
+            }
         }
         message("");
 
         // Print all files staged for addition
         message("=== Staged Files ===");
+        StagingArea Add = getStage(ADD_FILE);
         Set<String> addFiles = Add.getFiles();
-        for (String f : addFiles) {
-            message(f);
+        if (addFiles != null) {
+            for (String f : addFiles) {
+                message(f);
+            }
         }
         message("");
 
         // Print all files staged for removal (i.e. removed files)
         message("=== Removed Files ===");
+        StagingArea Rm = getStage(RM_FILE);
         Set<String> rmFiles = Rm.getFiles();
-        for (String f : rmFiles) {
-            message(f);
+        if (rmFiles != null) {
+            for (String f : rmFiles) {
+                message(f);
+            }
         }
         message("");
 
@@ -327,7 +347,7 @@ public class Repository {
             // 1. the branch does not exist
             message("No such branch exists.");
             System.exit(0);
-        } else if (branchName.equals(curBranchName)) {
+        } else if (branchName.equals(readContentsAsString(curBranchName))) {
             // 2. the checked out branch is the current branch
             message("No need to checkout the current branch.");
             System.exit(0);
@@ -366,10 +386,12 @@ public class Repository {
 
         // Set Head to point to the Commit of this branchHead
         updatePointerTo(HEAD, branchHead);
-        curBranchName = branchName; // update current branch name
+        writeContents(curBranchName, branchName); // update current branch name
 
         // If branchName != the current branch (i.e. if it's checking out to another branch),
         // Clear the staging area.
+        StagingArea Add = getStage(ADD_FILE);
+        StagingArea Rm = getStage(RM_FILE);
         Add.clean();
         Rm.clean();
     }
@@ -399,7 +421,7 @@ public class Repository {
         if (!branchPath.exists()) {
             // Failure case 1: branch with the given name does not exist
             message("A branch with that name does not exist.");
-        } else if (branchName.equals(curBranchName)) {
+        } else if (branchName.equals(readContentsAsString(curBranchName))) {
             // Failure case 2: trying to remove the current branch
             message("Cannot remove the current branch.");
         }
@@ -449,9 +471,11 @@ public class Repository {
         }
         // Update the HEAD pointer and current branch head
         updatePointerTo(HEAD, newHead);
-        updatePointerTo(join(BRANCH_DIR, curBranchName), newHead);
+        updatePointerTo(join(BRANCH_DIR, readContentsAsString(curBranchName)), newHead);
 
         // Clean the staging area
+        StagingArea Add = getStage(ADD_FILE);
+        StagingArea Rm = getStage(RM_FILE);
         Add.clean();
         Rm.clean();
     }
@@ -485,6 +509,8 @@ public class Repository {
 
         /* Failure checks */
         // FC1: uncommitted changes
+        StagingArea Add = getStage(ADD_FILE);
+        StagingArea Rm = getStage(RM_FILE);
         if (Add.size() != 0 || Rm.size() != 0) {
             message("You have uncommitted changes.");
             System.exit(0);
@@ -495,7 +521,7 @@ public class Repository {
             System.exit(0);
         }
         // FC3: merge with itself
-        if (otherBranchName.equals(curBranchName)) {
+        if (otherBranchName.equals(readContentsAsString(curBranchName))) {
             message("Cannot merge a branch with itself.");
             System.exit(0);
         }
@@ -569,7 +595,7 @@ public class Repository {
             }
         }
         // Make a merge commit
-        String msg = "Merged " + otherBranchName + " into " + curBranchName + ".";
+        String msg = "Merged " + otherBranchName + " into " + readContentsAsString(curBranchName) + ".";
         commit(msg);
     }
 
@@ -626,6 +652,10 @@ public class Repository {
             }
         }
         return false;
+    }
+
+    private static StagingArea getStage(File addFile) {
+        return readObject(addFile, StagingArea.class);
     }
 
 

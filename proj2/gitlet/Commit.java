@@ -146,6 +146,9 @@ public class Commit implements Serializable {
 
     /** Returns the sha-1 hash of the Commit's parent Commit. */
     public List<Commit> getParent() {
+        if (parents == null) {
+            return null;
+        }
         List<Commit> res = new ArrayList<>();
         for (String pId : parents) {
             res.add(getCommitFromId(pId));

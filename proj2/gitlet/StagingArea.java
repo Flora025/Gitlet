@@ -2,6 +2,7 @@ package gitlet;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -13,7 +14,7 @@ import static gitlet.Utils.*;
  *
  *  @author flora
  */
-public class StagingArea {
+public class StagingArea implements Serializable {
 
     /* Instance variables */
     public final File AREA_FILE;
@@ -27,16 +28,21 @@ public class StagingArea {
     /** Constructor. Initializes a staging area
      * @param areaName the name of the staging area
      */
-    public StagingArea(String areaName) {
+    public StagingArea(String areaName, File AREA_FILE) {
         this.areaName = areaName;
         this.nameToBlob = new HashMap<>();
-        this.AREA_FILE = join(Repository.GITLET_DIR, areaName);
-        try {
-            AREA_FILE.createNewFile();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        this.AREA_FILE = AREA_FILE;
+    }
+
+    public void saveStage(File AREA_FILE) {
+        if (!AREA_FILE.exists()) {
+            try {
+                AREA_FILE.createNewFile();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
-        writeObject(AREA_FILE, nameToBlob); // Add and Rm must be initialized in advance
+        writeObject(AREA_FILE, this); // Add and Rm must be initialized in advance
     }
 
     /** Gets the Blob corresponding to the id/hash of the given key in the area map */
@@ -50,14 +56,14 @@ public class StagingArea {
     public void put(String plainName, Blob blob) {
         String blobId = blob.getId();
         this.nameToBlob.put(plainName, blobId);
-        writeObject(AREA_FILE, nameToBlob); // overwrite the original file as an update
+        writeObject(AREA_FILE, this); // overwrite the original file as an update
     }
 
     /** Given a key, removes a map item from the staging area.
      *  returns a blob item mapped to the plainName. */
     public Blob remove(String plainName) {
-        String blobId = nameToBlob.remove(plainName);
-        writeObject(AREA_FILE, nameToBlob); // overwrite the original file as an update
+        String blobId = this.nameToBlob.remove(plainName);
+        writeObject(AREA_FILE, this); // overwrite the original file as an update
         return Blob.getBlobFromId(blobId);
     }
 
@@ -73,8 +79,8 @@ public class StagingArea {
 
     /** Removes all mappings in the staged area for addition. */
     public void clean() {
-        nameToBlob = new HashMap<String, String>();
-        writeObject(this.AREA_FILE, nameToBlob);
+        this.nameToBlob = new HashMap<String, String>();
+        writeObject(this.AREA_FILE, this);
     }
 
 
