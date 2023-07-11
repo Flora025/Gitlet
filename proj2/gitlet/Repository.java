@@ -1,7 +1,5 @@
 package gitlet;
 
-import afu.org.checkerframework.checker.igj.qual.I;
-import org.checkerframework.checker.units.qual.C;
 
 import java.io.File;
 import java.io.IOException;
