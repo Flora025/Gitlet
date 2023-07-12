@@ -128,6 +128,10 @@ public class Main {
                 }
                 merge(args[1]);
                 break;
+            default:
+                message("No command with that name exists.");
+                System.exit(0);
+                break;
         }
     }
 }

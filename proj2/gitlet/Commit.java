@@ -70,13 +70,22 @@ public class Commit implements Serializable {
 
     /** Gets the Commit object corresponding to the given sha-1 filename
      *  @param id filename as sha-1 hash referring to a Commit object
+     *            Allow abbreviated id.
      */
     public static Commit getCommitFromId(String id) {
         if (id == null || id == "") {
             return null;
         }
+        // Search id in file (might be abbreviated id)
+        int n = id.length();
+        String foundId = id;
+        for (String name : Objects.requireNonNull(plainFilenamesIn(COMMIT_FOLDER))) {
+            if (name.substring(0, n).equals(id)) {
+                foundId = name;
+            }
+        }
         // Get the absolute file path from its sha-1 hash
-        File filePath = join(COMMIT_FOLDER, id);
+        File filePath = join(COMMIT_FOLDER, foundId);
         if (!filePath.exists()) {
             return null;
         }

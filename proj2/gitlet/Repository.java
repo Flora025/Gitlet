@@ -259,6 +259,11 @@ public class Repository {
 
     /** Displays what branches currently exist, and marks the current branch with a *. */
     public static void status() {
+        // FC
+        if (!GITLET_DIR.exists()) {
+            message("Not in an initialized Gitlet directory");
+            System.exit(0);
+        }
         // Print all branches, with current branch marked with a *
         message("=== Branches ===");
         List<String> branches = plainFilenamesIn(BRANCH_DIR);
