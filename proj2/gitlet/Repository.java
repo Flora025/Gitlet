@@ -524,8 +524,6 @@ public class Repository {
      */
     public static void merge(String otherBranchName) {
         File branchpath = join(BRANCH_DIR, otherBranchName);
-        Commit otherHead = getPointer(branchpath);
-        Commit curHead = getPointer(HEAD);
 
         /* Failure checks */
         // FC1: uncommitted changes
@@ -545,6 +543,8 @@ public class Repository {
             message("Cannot merge a branch with itself.");
             System.exit(0);
         }
+        Commit otherHead = getPointer(branchpath);
+        Commit curHead = getPointer(HEAD);
         // FC4: untracked files
         if (hasUntrackedFile(curHead, otherHead)) {
             message("There is an untracked file in the way; delete it, or add and commit it first.");
@@ -641,9 +641,13 @@ public class Repository {
     private static void printCommitInfo(Commit commit, SimpleDateFormat format) {
         message("===");
         message("commit %s", commit.getId());
-        // TODO: placeholder for <merge>
-        // Merge: [first seven digits of the CW branch] [first seven digits of merged-in branch]
-        // message("Merge: " + format.format(commit.getTimestamp()));
+        List<Commit> parents = commit.getParent();
+        if (parents != null && parents.size() == 2) {
+            System.out.printf(
+                    "Merge: %s %s",
+                    parents.get(0).getId().substring(0, 7),
+                    parents.get(1).getId().substring(0, 7));
+        }
         message("Date: " + format.format(commit.getTimestamp()));
         message(commit.getMessage() + "\n");
     }
