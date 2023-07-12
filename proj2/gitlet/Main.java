@@ -15,8 +15,7 @@ public class Main {
      */
     public static void main(String[] args) {
         if (args.length == 0) {
-            message("Usage: java gitlet.Main ARGS, where ARGS contains" +
-                    "\n<COMMAND> <OPERAND1> <OPERAND2> ... ");
+            message("Please enter a command.");
             System.exit(0);
         }
 

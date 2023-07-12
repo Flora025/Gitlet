@@ -123,7 +123,7 @@ public class Repository {
      * Save and start tracking any files that were staged for addition but were not tracked by its parent.
      * @param message Commit message.
      */
-    public static void commit(String message) {
+    public static Commit commit(String message) {
         if (message.equals("")) {
             message("Please enter a commit message.");
             System.exit(0);
@@ -161,6 +161,8 @@ public class Repository {
         // Clean the staging area (Add && Rm)
         Add.clean();
         Rm.clean();
+
+        return curCommit;
     }
 
 
@@ -506,26 +508,8 @@ public class Repository {
     }
 
 
-    /* HEAD and Branch management */
-
-    /** Gets the Commit that a given pointer P is pointing to.
-     *  Usage: getPointer(HEAD), getPointer(Master) */
-    private static Commit getPointer(File p) {
-        String id = readContentsAsString(p);
-        return Commit.getCommitFromId(id);
-    }
-
-    /** Updates a pointer P to point to a specific Commit
-     *  Usage: updatePointerTo(HEAD, commit) HEAD -> commit
-     *         updatePointerTo(Master, commit) Master -> commit*/
-    private static void updatePointerTo(File p, Commit commit) {
-        // update by internally overwriting the hash (i.e. filename) of the Commit
-        writeContents(p, commit.getId());
-    }
-
-
     /**
-     *  iterate over cwd to check four types of file conditions
+     *  Merge a given branch into the current branch.
      */
     public static void merge(String otherBranchName) {
         File branchpath = join(BRANCH_DIR, otherBranchName);
@@ -630,13 +614,34 @@ public class Repository {
             }
         }
         // Make a merge commit
-        String msg = "Merged " + otherBranchName + " into " + readContentsAsString(curBranchName) + ".";
+        String msg = String.format("Merged %s into %s\\.", otherBranchName, readContentsAsString(curBranchName));
         // If there's anything in the staging areas
         Add = getStage(ADD_FILE); // retrieve again
         Rm = getStage(RM_FILE);
         if (Add.size() != 0 || Rm.size() != 0) {
-            commit(msg);
+            Commit mergeCommit = commit(msg);
+            mergeCommit.addParent(otherHead);
         }
+    }
+
+
+
+
+    /* HEAD and Branch management */
+
+    /** Gets the Commit that a given pointer P is pointing to.
+     *  Usage: getPointer(HEAD), getPointer(Master) */
+    private static Commit getPointer(File p) {
+        String id = readContentsAsString(p);
+        return Commit.getCommitFromId(id);
+    }
+
+    /** Updates a pointer P to point to a specific Commit
+     *  Usage: updatePointerTo(HEAD, commit) HEAD -> commit
+     *         updatePointerTo(Master, commit) Master -> commit*/
+    private static void updatePointerTo(File p, Commit commit) {
+        // update by internally overwriting the hash (i.e. filename) of the Commit
+        writeContents(p, commit.getId());
     }
 
 

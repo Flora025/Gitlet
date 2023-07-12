@@ -73,7 +73,7 @@ public class Commit implements Serializable {
      *            Allow abbreviated id.
      */
     public static Commit getCommitFromId(String id) {
-        if (id == null || id == "") {
+        if (id == null || id.equals("")) {
             return null;
         }
         // Search id in file (might be abbreviated id)
@@ -125,6 +125,13 @@ public class Commit implements Serializable {
         File filepath = join(COMMIT_FOLDER, this.id);
         writeObject(filepath, this); // overwrite the original file as an update
         return Blob.getBlobFromId(blobId);
+    }
+
+    /** Adds a parent to the current parent list.
+     *  Used for merging commits. */
+    public void addParent(Commit parent) {
+        this.parents.add(parent.getId());
+        this.saveCommit();// update commit file
     }
 
     /** Given a plainName, return the corresponding blob id in commit map
