@@ -464,6 +464,7 @@ public class Repository {
         File commitFile = join(Commit.COMMIT_FOLDER, commitId);
         if (!commitFile.exists()) {
             message("No commit with that id exists.");
+            System.exit(0);
         }
 
         Commit newHead = Commit.getCommitFromId(commitId);
@@ -669,7 +670,7 @@ public class Repository {
         // for all files in the current dir,
         for (String plainName : Objects.requireNonNull(plainFilenamesIn(CWD))) {
             // if the file does not exist in current commit -> has untracked file
-            if (!curHead.containsFile(plainName)) {
+            if (!curHead.containsFile(plainName) && checkoutHead.containsFile(plainName)) {
                 return true;
             }
         }
