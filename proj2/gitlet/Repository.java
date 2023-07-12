@@ -558,6 +558,7 @@ public class Repository {
             }
         }
         Commit split = Commit.getCommitFromId(splitId); // GET!
+        checkSplit(split, curHead, otherBranchName);
 
         /* 2. Update files */
         // Create a map for each Commit's mapping, and a map for all mappings
@@ -592,10 +593,10 @@ public class Repository {
                 continue;
             } else if (inSplit && curModified && otherModified) {
                 // c. in SPLIT && mod in curHead && mod in otherHead (same way) -> remain the same
-                if (curHead.get(fn).compareTo(split.get(fn))) {
-                    continue;
-                } else {
-                    // d. in SPLIT && mod in curHead && mod in otherHead (diff ways) -> CONFLICT!
+                // d. in SPLIT && mod in curHead && mod in otherHead (diff ways) -> CONFLICT!
+                if (curHead.get(fn) != null
+                        && split.get(fn) != null
+                        && !curHead.get(fn).compareTo(split.get(fn))) {
                     conflicted = true;
 
                     Blob curBlob = curHead.get(fn);
@@ -722,4 +723,20 @@ public class Repository {
         return idToDepth;
     }
 
+    /** Check if a split point is the current branch head || is the checked-out branch head */
+    private static void checkSplit(Commit split, Commit curBranch, String givenBranchName) {
+        Commit givenBranch = getPointer(join(BRANCH_DIR, givenBranchName));
+        if (split.compareTo(givenBranch)) {
+            message("Given branch is an ancestor of the current branch.");
+            System.exit(0);
+        } else if (split.compareTo(curBranch)) {
+            try {
+                checkoutBranch(givenBranchName);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            message("Current branch fast-forwarded.");
+            System.exit(0);
+        }
+    }
 }
