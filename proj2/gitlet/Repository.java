@@ -596,8 +596,10 @@ public class Repository {
                 } else {
                     // d. in SPLIT && mod in curHead && mod in otherHead (diff ways) -> CONFLICT!
                     message("Encountered a merge conflict."); // print on terminal?
-                    String curContent = curHead.get(fn).getPlainContent();
-                    String otherContent = otherHead.get(fn).getPlainContent();
+                    Blob curBlob = curHead.get(fn);
+                    String curContent = curBlob == null ? "" : curBlob.getPlainContent();
+                    Blob otherBlob = otherHead.get(fn);
+                    String otherContent = otherBlob == null ? "" : otherBlob.getPlainContent();
                     // write content str into file
                     File tmp = join(CWD, fn);
                     writeContents(tmp, "<<<<<<< HEAD\n" + curContent + "=======\n" + otherContent + ">>>>>>>\n");
@@ -629,6 +631,38 @@ public class Repository {
         if (Add.size() != 0 || Rm.size() != 0) {
             commit(msg);
         }
+    }
+
+
+    /* Helper Methods */
+
+    /** Prints the log information with a given format. */
+    private static void printCommitInfo(Commit commit, SimpleDateFormat format) {
+        message("===");
+        message("commit %s", commit.getId());
+        // TODO: placeholder for <merge>
+        // Merge: [first seven digits of the CW branch] [first seven digits of merged-in branch]
+        // message("Merge: " + format.format(commit.getTimestamp()));
+        message("Date: " + format.format(commit.getTimestamp()));
+        message(commit.getMessage() + "\n");
+    }
+
+    /** Check if there are untracked files in the current branch */
+    private static boolean hasUntrackedFile(Commit curHead, Commit checkoutHead) {
+        // Check if this file exists in CWD but not in the Commit of current branch head
+
+        // for all files in the current dir,
+        for (String plainName : Objects.requireNonNull(plainFilenamesIn(CWD))) {
+            // if the file does not exist in current commit -> has untracked file
+            if (!curHead.containsFile(plainName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static StagingArea getStage(File addFile) {
+        return readObject(addFile, StagingArea.class);
     }
 
     /** Checks if the file in SUCCESSOR has been modified based on ANCESTOR.*/
@@ -663,37 +697,5 @@ public class Repository {
         }
         return idToDepth;
     }
-
-    /* Helper Methods */
-
-    /** Prints the log information with a given format. */
-    private static void printCommitInfo(Commit commit, SimpleDateFormat format) {
-        message("===");
-        message("commit %s", commit.getId());
-        // TODO: placeholder for <merge>
-        // Merge: [first seven digits of the CW branch] [first seven digits of merged-in branch]
-        // message("Merge: " + format.format(commit.getTimestamp()));
-        message("Date: " + format.format(commit.getTimestamp()));
-        message(commit.getMessage() + "\n");
-    }
-
-    /** Check if there are untracked files in the current branch */
-    private static boolean hasUntrackedFile(Commit curHead, Commit checkoutHead) {
-        // Check if this file exists in CWD but not in the Commit of current branch head
-
-        // for all files in the current dir,
-        for (String plainName : Objects.requireNonNull(plainFilenamesIn(CWD))) {
-            // if the file does not exist in current commit -> has untracked file
-            if (!curHead.containsFile(plainName)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private static StagingArea getStage(File addFile) {
-        return readObject(addFile, StagingArea.class);
-    }
-
 
 }
