@@ -567,6 +567,7 @@ public class Repository {
         allM.putAll(curM);
         allM.putAll(otherM);
         // Iterate through all file plain names
+        boolean conflicted = false;
         for (String fn : allM.keySet()) {
             boolean inSplit = splitM.containsKey(fn);
             boolean otherModified = modified(fn, splitM, otherM);
@@ -592,7 +593,8 @@ public class Repository {
                     continue;
                 } else {
                     // d. in SPLIT && mod in curHead && mod in otherHead (diff ways) -> CONFLICT!
-                    System.out.println("Encountered a merge conflict."); // print on terminal?
+                    conflicted = true;
+
                     Blob curBlob = curHead.get(fn);
                     String curContent = curBlob == null ? "" : curBlob.getPlainContent();
                     Blob otherBlob = otherHead.get(fn);
@@ -622,6 +624,9 @@ public class Repository {
         if (Add.size() != 0 || Rm.size() != 0) {
             Commit mergeCommit = commit(msg);
             mergeCommit.addParent(otherHead);
+        }
+        if (conflicted) {
+            System.out.println("Encountered a merge conflict.");
         }
     }
 
