@@ -108,11 +108,14 @@ public class Repository {
         //    || there is no such file in the HEAD commit,
         // -> the file is changed || newly added, update the mapping
         StagingArea Add = getStage(ADD_FILE);
+        StagingArea Rm = getStage(RM_FILE);
         if (headBlob == null || !curBlob.compareTo(headBlob)) {
             // Add the new mapping to staging area for addition (Add)
             Add.put(plainName, curBlob);
+        } else {
+            // Else if the two matches -> No changes in the file, remove the mark if it's in Rm
+            Rm.remove(plainName);
         }
-        // Else if the two matches -> No changes in the file, and thus nothing happens
     }
 
     /**
@@ -191,16 +194,13 @@ public class Repository {
         // remove it from the working directory
         if (isTracked) {
             Blob blob = head.get(plainName);
-            Blob curBlob = new Blob(join(CWD, plainName), plainName);
-            if (!curBlob.compareTo(blob)) {
-                // only add to stage if the current file (CWD) differs from the one in headCommit
-                Rm.put(plainName, blob);
-            }
-            if (join(CWD, plainName).exists()) {
-                restrictedDelete(join(CWD, plainName)); // abs path of the file to be deleted
-            }
+            // Blob curBlob = new Blob(join(CWD, plainName), plainName);
+            Rm.put(plainName, blob);
         }
 
+        if (join(CWD, plainName).exists()) {
+            restrictedDelete(join(CWD, plainName)); // abs path of the file to be deleted
+        }
     }
 
     /**
