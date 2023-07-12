@@ -192,8 +192,10 @@ public class Repository {
         if (isTracked) {
             Blob blob = head.get(plainName);
             Blob curBlob = new Blob(join(CWD, plainName), plainName);
-            Rm.put(plainName, blob);
-
+            if (!curBlob.compareTo(blob)) {
+                // only add to stage if the current file (CWD) differs from the one in headCommit
+                Rm.put(plainName, blob);
+            }
             if (join(CWD, plainName).exists()) {
                 restrictedDelete(join(CWD, plainName)); // abs path of the file to be deleted
             }
