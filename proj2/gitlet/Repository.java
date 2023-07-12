@@ -591,7 +591,7 @@ public class Repository {
                     continue;
                 } else {
                     // d. in SPLIT && mod in curHead && mod in otherHead (diff ways) -> CONFLICT!
-                    message("Encountered a merge conflict."); // print on terminal?
+                    System.out.println("Encountered a merge conflict."); // print on terminal?
                     Blob curBlob = curHead.get(fn);
                     String curContent = curBlob == null ? "" : curBlob.getPlainContent();
                     Blob otherBlob = otherHead.get(fn);
@@ -654,7 +654,7 @@ public class Repository {
         List<Commit> parents = commit.getParent();
         if (parents != null && parents.size() == 2) {
             System.out.printf(
-                    "Merge: %s %s",
+                    "Merge: %s %s\n",
                     parents.get(0).getId().substring(0, 7),
                     parents.get(1).getId().substring(0, 7));
         }
