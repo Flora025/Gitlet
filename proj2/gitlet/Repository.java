@@ -582,7 +582,13 @@ public class Repository {
             boolean otherModified = modified(fn, splitM, otherM);
             boolean curModified = modified(fn, splitM, curM);
             // a. in SPLIT && modified in otherHead && not in curHead -> update to otherHead
-            if (inSplit && !curModified && otherModified) {
+            if (inSplit && !otherM.containsKey(fn) && !curModified) {
+                // g. in SPLIT && unmodified in curHead && absent in otherHead -> remove (rm) file
+                rm(fn);
+            } else if (inSplit && !curM.containsKey(fn) && !otherModified) {
+                // h. in SPLIT && unmodified in otherHead && absent in curHead -> remain removed
+                continue;
+            } else if (inSplit && !curModified && otherModified) {
                 // update file in CWD to otherHead
                 Blob newBlob = otherHead.get(fn);
                 newBlob.writeContentToFile(join(CWD, fn));
@@ -616,12 +622,6 @@ public class Repository {
                 Blob newBlob = otherHead.get(fn);
                 newBlob.writeContentToFile(join(CWD, fn));
                 add(fn);
-            } else if (inSplit && !otherM.containsKey(fn) && !curModified) {
-                // g. in SPLIT && unmodified in curHead && absent in otherHead -> remove (rm) file
-                rm(fn);
-            } else if (inSplit && !curM.containsKey(fn) && !otherModified) {
-                // h. in SPLIT && unmodified in otherHead && absent in curHead -> remain removed
-                continue;
             }
         }
         // Make a merge commit
