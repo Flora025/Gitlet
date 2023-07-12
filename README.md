@@ -1,6 +1,16 @@
 # Gitlet
 
-A version-control system that implements basic features of Git.
+A version-control system that implements a subset of basic features of Git.
+
+## **Catalog**
+
+[Usage](#usage)
+
+[Commands](#commands)
+
+[Design](#design)
+
+[Reference](#reference)
 
 ## Usage
 
@@ -22,37 +32,39 @@ A concise description of all commands available in Gitlet is as follows:
 
 ### init
 
-**Usage:** `java gitlet.Main init`
+***Usage*:** `java gitlet.Main init`
 
 Creates a version-control folder `.gitlet` in the current working directory.
 
 ### add
 
-**Usage:** `java gitlet.Main add [file name]`
+***Usage*:** `java gitlet.Main add [file name]`
 
 Adds a copy of the file as it currently exists to the staging area.
 
-**Differences from Git:** 
+***Differences from Git*:** 
+
 In Gitlet, only one file may be added at a time.
 
 ### commit
 
-**Usage:** `java gitlet.Main commit [message]`
+***Usage*:** `java gitlet.Main commit [message]`
 
 Saves a snapshot of tracked files in the current commit and staging area so they can be restored at a later time, creating a new commit.
 
-**Differences from Git:** 
+***Differences from Git*:** 
+
 In Gitlet, commits carry less metadata compared with real git.
 
 ### rm
 
-**Usage:** `java gitlet.Main rm [file name]`
+***Usage*:** `java gitlet.Main rm [file name]`
 
 Removes a file from the current working directory.
 
 ### log
 
-**Usage:** `java gitlet.Main log`
+***Usage*:** `java gitlet.Main log`
 
 Displays all commit information starting at HEAD in reverse chronological order.
 
@@ -60,27 +72,27 @@ Similar to `git log --first-parent`.
 
 ### global-log
 
-**Usage:** `java gitlet.Main global-log`
+***Usage*:** `java gitlet.Main global-log`
 
 Lists all commits ever made.
 
 ### find
 
-**Usage:** `java gitlet.Main find [commit message]`
+***Usage*:** `java gitlet.Main find [commit message]`
 
 Prints out the ids of all commits that have the given commit message, one per line.
 
-**Differences from Git:** Doesn’t exist in real git.
+***Differences from Git*:** Doesn’t exist in real git.
 
 ### status
 
-**Usage:** `java gitlet.Main status`
+***Usage*:** `java gitlet.Main status`
 
 Displays what branches currently exist, and marks the current branch with a *. Also displays what files have been staged for addition or removal.
 
 ### checkout
 
-**Usages:**
+***Usages*:**
 
 1. `java gitlet.Main checkout -- [file name]`
 2. `java gitlet.Main checkout [commit id] -- [file name]`
@@ -88,31 +100,36 @@ Displays what branches currently exist, and marks the current branch with a *. A
 
 Depending on the given args, checks out a file in HEAD commit, a file specified by commit id, or all files in the head of a specified branch.
 
-**Differences from Git:** 
+***Differences from Git*:** 
+
 Real git does not clear the staging area and stages the file that is checked out. 
 
 ### branch
 
-**Usage:** `java gitlet.Main branch [branch name]`
+***Usage*:** `java gitlet.Main branch [branch name]`
 
 Creates a new branch with the given name, and points it at the current head commit.
 
 ### reset
 
-**Usage:** `java gitlet.Main reset [commit id]`
+***Usage*:** `java gitlet.Main reset [commit id]`
 
 Checks out all the files tracked by the given commit.
 
-**Differences from Git:** This command is closest to using the `--hard` option, as in `git reset --hard [commit id]`.
+***Differences from Git*:** 
+
+This command is closest to using the `--hard` option, as in `git reset --hard [commit id]`.
 
 ### merge
 
-**Usage:** `java gitlet.Main merge [branch name]`
+***Usage*:** `java gitlet.Main merge [branch name]`
 
 Merges files from the given branch into the current branch.
 
-**Differences from real git:** 
+***Differences from real git*:** 
+
 Real Git will force the user to resolve the merge conflicts before committing to complete the merge. 
+
 Gitlet just commits the merge, conflicts and all.
 
 ## Design
@@ -126,8 +143,11 @@ Gitlet just commits the merge, conflicts and all.
 - Solution:
 
   - On a higher level, involve only communications between objects (between Blob and Commit, there should only be `Blob b = commit1.get(filename)`)
+  
   - Eliminate the need to dive into low-level operations through encapsulation.
+    
     i.e. Outside the class of that object, never try to hash things, or modify maps inside Commit/Blob objects.
+    
     E.g. The `StagingArea` supports common map operations. Upon put (fileName, Commit), it completes: read commit into commit id -> put into its map -> serialize itself and write into the file for staging.
 
 ### Persistence
@@ -140,8 +160,8 @@ CWD
      └── --commits/       # all commits
         ├──blobs/         # file content
         ├──branchHeads/   # branch heads
-        |  └──--master      # master branch
-        |    ├──..	      # other branches
+        |  ├──--master      # master branch
+        |  └──..            # other branches
         ├──HEAD	          # HEAD commit
         ├──add            # staging area for addition
         └──rm             # staging area for removal
@@ -170,6 +190,4 @@ The `StagingArea` class stores files for addition and removal. A StagingArea wor
 
 ## Reference
 
-Gitlet is originally an individual project in UCB CS61b.
-
-See [Project 2: Gitlet](https://sp21.datastructur.es/materials/proj/proj2/proj2#a-note-on-this-spec) for the full (and REAL long) spec.
+Gitlet is originally an individual project in UCB [CS61b](https://sp21.datastructur.es/).
