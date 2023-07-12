@@ -102,15 +102,19 @@ public class Commit implements Serializable {
 
     /* Commit Map operations */
     /** Insert a key-value set into the nameToBlob map of the commit */
-    public void put(String plainName, Blob blob) {
+    private void put(String plainName, Blob blob) {
         String id = blob.getId();
         nameToBlob.put(plainName, id); // what's ACTUALLY put into the map is the ID
+        File filepath = join(COMMIT_FOLDER, this.id);
+        writeObject(filepath, this);
     }
     /** remove a key-val set from the map
      * @return Blob of the id corresponding to the given key
      */
     public Blob remove(String plainName) {
         String blobId = nameToBlob.remove(plainName);
+        File filepath = join(COMMIT_FOLDER, this.id);
+        writeObject(filepath, this); // overwrite the original file as an update
         return Blob.getBlobFromId(blobId);
     }
 

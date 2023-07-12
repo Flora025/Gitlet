@@ -57,6 +57,13 @@ public class Blob implements Serializable {
 
     /** Converts a blob back into a file, and write to the given new file path */
     public void writeContentToFile(File newFilepath) {
+        if (!newFilepath.exists()) {
+            try {
+                newFilepath.createNewFile();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
         // Reads the blob's plainContent into the new File
         writeContents(newFilepath, this.getPlainContent()); // overwrite
     }

@@ -107,9 +107,9 @@ public class Repository {
         // If this id does not match the id of the same file in the HEAD (i.e. cur) commit
         //    || there is no such file in the HEAD commit,
         // -> the file is changed || newly added, update the mapping
+        StagingArea Add = getStage(ADD_FILE);
         if (headBlob == null || !curBlob.compareTo(headBlob)) {
             // Add the new mapping to staging area for addition (Add)
-            StagingArea Add = getStage(ADD_FILE);
             Add.put(plainName, curBlob);
         }
         // Else if the two matches -> No changes in the file, and thus nothing happens
@@ -151,9 +151,9 @@ public class Repository {
 
         curCommit.saveCommit();
 
-        // Update HEAD and MASTER pointers
+        // Update HEAD and curBranchHead pointers
         updatePointerTo(HEAD, curCommit);
-        updatePointerTo(Master, curCommit);
+        updatePointerTo(join(BRANCH_DIR, readContentsAsString(curBranchName)), curCommit);
 
         // Clean the staging area (Add && Rm)
         Add.clean();
@@ -191,7 +191,9 @@ public class Repository {
         // remove it from the working directory
         if (isTracked) {
             Blob blob = head.get(plainName);
+            Blob curBlob = new Blob(join(CWD, plainName), plainName);
             Rm.put(plainName, blob);
+
             if (join(CWD, plainName).exists()) {
                 restrictedDelete(join(CWD, plainName)); // abs path of the file to be deleted
             }
@@ -264,7 +266,7 @@ public class Repository {
             for (String branchName : branches) {
                 // For each branch, print out its name,
                 // and marks the current branch with a *.
-                message(branchName.equals(readContentsAsString(curBranchName)) ? "\\*" + branchName : branchName);
+                message(branchName.equals(readContentsAsString(curBranchName)) ? "*" + branchName : branchName);
             }
         }
         message("");
@@ -359,7 +361,7 @@ public class Repository {
         if (!branchPath.exists()) {
             // 1. the branch does not exist
             message("No such branch exists.");
-            System.exit(0);
+            return;
         } else if (branchName.equals(readContentsAsString(curBranchName))) {
             // 2. the checked out branch is the current branch
             message("No need to checkout the current branch.");
@@ -375,9 +377,13 @@ public class Repository {
         String commitId = branchHead.getId();
 
         /* There are 3 kinds of situations: */
+        // for ALL files in curHead and checkoutBranchHead
+        Set<String> names = new HashSet<>();
+        names.addAll(head.nameSet());
+        names.addAll(branchHead.nameSet());
 
         // Iterate over files in CWD
-        for (String plainName : Objects.requireNonNull(plainFilenamesIn(CWD))) {
+        for (String plainName : names) {
             // 1) the file is tracked in curBranch as well as checked-out branch -> replace the Blob
             if (head.containsFile(plainName) && branchHead.containsFile(plainName)) {
                 // Call checkoutSpecifiedFile(commitId, plainName) on the file
@@ -571,52 +577,66 @@ public class Repository {
         allM.putAll(otherM);
         // Iterate through all file plain names
         for (String fn : allM.keySet()) {
+            boolean inSplit = splitM.containsKey(fn);
+            boolean otherModified = modified(fn, splitM, otherM);
+            boolean curModified = modified(fn, splitM, curM);
             // a. in SPLIT && modified in otherHead && not in curHead -> update to otherHead
-            if (splitM.containsKey(fn) && !modified(fn, splitM, curM) && modified(fn, splitM, otherM)) {
-                curHead.put(fn, otherHead.get(fn));
+            if (inSplit && !curModified && otherModified) {
+                // update file in CWD to otherHead
+                Blob newBlob = otherHead.get(fn);
+                newBlob.writeContentToFile(join(CWD, fn));
                 add(fn);
-            } else if (splitM.containsKey(fn) && modified(fn, splitM, curM) && !modified(fn, splitM, otherM)) {
+            } else if (inSplit && curModified && !otherModified) {
                 // b. in SPLIT && modified in curHead && not in otherHead -> keep to curHead
                 continue;
-            } else if (splitM.containsKey(fn) && modified(fn, splitM, curM) && modified(fn, splitM, otherM)) {
+            } else if (inSplit && curModified && otherModified) {
                 // c. in SPLIT && mod in curHead && mod in otherHead (same way) -> remain the same
-                continue;
-            } else if (splitM.containsKey(fn) && modified(fn, splitM, curM) && modified(fn, splitM, otherM)) {
-                // d. in SPLIT && mod in curHead && mod in otherHead (diff ways) -> CONFLICT!
-                message("Encountered a merge conflict."); // print on terminal?
-                String curContent = curHead.get(fn).getPlainContent();
-                String otherContent = otherHead.get(fn).getPlainContent();
-                // write content str into file
-                File tmp = join(CWD, fn);
-                writeContents(tmp, "<<<<<<< HEAD\n" + curContent + "\n=======\n" + otherContent + "\n>>>>>>>");
-                Blob conflict = new Blob(tmp, fn); // content modification
-                curHead.put(fn, conflict);
-                add(fn);
-            } else if (!splitM.containsKey(fn) && !modified(fn, splitM, otherM) && modified(fn, splitM, curM)) {
+                if (curHead.get(fn).compareTo(split.get(fn))) {
+                    continue;
+                } else {
+                    // d. in SPLIT && mod in curHead && mod in otherHead (diff ways) -> CONFLICT!
+                    message("Encountered a merge conflict."); // print on terminal?
+                    String curContent = curHead.get(fn).getPlainContent();
+                    String otherContent = otherHead.get(fn).getPlainContent();
+                    // write content str into file
+                    File tmp = join(CWD, fn);
+                    writeContents(tmp, "<<<<<<< HEAD\n" + curContent + "=======\n" + otherContent + ">>>>>>>\n");
+                    Blob newBlob = new Blob(tmp, fn); // content modification
+                    newBlob.writeContentToFile(join(CWD, fn));
+                    add(fn);
+                }
+            } else if (!inSplit && !otherModified && curModified) {
                 // e. not in SPLIT && not otherHead && mod in curHead -> keep to curHead
                 continue;
-            } else if (!splitM.containsKey(fn) && modified(fn, splitM, otherM) && !modified(fn, splitM, curM)) {
+            } else if (!inSplit && otherModified && !curModified) {
                 // f. not in SPLIT && not curHead && mod in otherHead -> update to otherHead
-                curHead.put(fn, otherHead.get(fn));
+                Blob newBlob = otherHead.get(fn);
+                newBlob.writeContentToFile(join(CWD, fn));
                 add(fn);
-            } else if (splitM.containsKey(fn) && !otherM.containsKey(fn) && !modified(fn, splitM, curM)) {
+            } else if (inSplit && !otherM.containsKey(fn) && !curModified) {
                 // g. in SPLIT && unmodified in curHead && absent in otherHead -> remove (rm) file
                 rm(fn);
-            } else if (splitM.containsKey(fn) && !curM.containsKey(fn) && !modified(fn, splitM, otherM)) {
+            } else if (inSplit && !curM.containsKey(fn) && !otherModified) {
                 // h. in SPLIT && unmodified in otherHead && absent in curHead -> remain removed
                 continue;
             }
         }
         // Make a merge commit
         String msg = "Merged " + otherBranchName + " into " + readContentsAsString(curBranchName) + ".";
-        commit(msg);
+        // If there's anything in the staging areas
+        Add = getStage(ADD_FILE); // retrieve again
+        Rm = getStage(RM_FILE);
+        if (Add.size() != 0 || Rm.size() != 0) {
+            commit(msg);
+        }
     }
 
     /** Checks if the file in SUCCESSOR has been modified based on ANCESTOR.*/
     private static boolean modified(String plainName, Map<String, String> ancestor,
                                     Map<String, String> successor) {
         // equals == true -> not modified
-        return !ancestor.get(plainName).equals(successor.get(plainName));
+        boolean res = !ancestor.getOrDefault(plainName, "").equals(successor.getOrDefault(plainName, ""));
+        return res;
     }
 
     /** Given a starting vertex, level-traverses the Commit tree
@@ -630,6 +650,10 @@ public class Repository {
         while (!q.isEmpty()) {
             Commit n = q.poll();
             idToDepth.put(n.getId(), depth);
+            List<Commit> parents = n.getParent();
+            if (parents == null) {
+                break;
+            }
             for (Commit parent : n.getParent()) {
                 if (parent != null) {
                     q.offer(parent);
