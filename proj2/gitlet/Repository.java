@@ -196,10 +196,9 @@ public class Repository {
             Blob blob = head.get(plainName);
             // Blob curBlob = new Blob(join(CWD, plainName), plainName);
             Rm.put(plainName, blob);
-        }
-
-        if (join(CWD, plainName).exists()) {
-            restrictedDelete(join(CWD, plainName)); // abs path of the file to be deleted
+            if (join(CWD, plainName).exists()) {
+                restrictedDelete(join(CWD, plainName)); // abs path of the file to be deleted
+            }
         }
     }
 
