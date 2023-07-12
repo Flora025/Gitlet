@@ -78,7 +78,7 @@ public class Repository {
         initDirs();
 
         // 2. Create and save the first Commit
-        Commit firstCommit = new Commit("initial commit", null, new HashMap<>(), new Date(0));
+        Commit firstCommit = new Commit("initial commit", null, new TreeMap<>(), new Date(0));
         firstCommit.saveCommit();
 
         // 3. Initialize HEAD and master pointers
@@ -199,7 +199,7 @@ public class Repository {
             // Blob curBlob = new Blob(join(CWD, plainName), plainName);
             Rm.put(plainName, blob);
             if (join(CWD, plainName).exists()) {
-                restrictedDelete(join(CWD, plainName)); // abs path of the file to be deleted
+                join(CWD, plainName).delete(); // abs path of the file to be deleted
             }
         }
     }
@@ -551,15 +551,17 @@ public class Repository {
         String splitId = "";
         for (String id : curMap.keySet()) {
             if (otherMap.containsKey(id)) {
-                splitId = id;
-                minDepth = Math.min(minDepth, curMap.get(id));
+                if ((curMap.get(id) <= minDepth)) {
+                    splitId = id;
+                    minDepth = curMap.get(id);
+                }
             }
         }
         Commit split = Commit.getCommitFromId(splitId); // GET!
 
         /* 2. Update files */
         // Create a map for each Commit's mapping, and a map for all mappings
-        Map<String, String> allM = new HashMap<>();    // all blobs in the 3 Commits
+        Map<String, String> allM = new TreeMap<>();    // all blobs in the 3 Commits
         Map<String, String> splitM = split.getMap();  // blobs in split Commit
         Map<String, String> curM = curHead.getMap();    // blobs in curHead
         Map<String, String> otherM = otherHead.getMap();  // blobs in otherHead
@@ -572,6 +574,7 @@ public class Repository {
             boolean inSplit = splitM.containsKey(fn);
             boolean otherModified = modified(fn, splitM, otherM);
             boolean curModified = modified(fn, splitM, curM);
+            // 现在问题：点太快就会出现bug
             // a. in SPLIT && modified in otherHead && not in curHead -> update to otherHead
             if (inSplit && !otherM.containsKey(fn) && !curModified) {
                 // g. in SPLIT && unmodified in curHead && absent in otherHead -> remove (rm) file
@@ -617,7 +620,7 @@ public class Repository {
             }
         }
         // Make a merge commit
-        String msg = String.format("Merged %s into %s\\.", otherBranchName, readContentsAsString(curBranchName));
+        String msg = String.format("Merged %s into %s.", otherBranchName, readContentsAsString(curBranchName));
         // If there's anything in the staging areas
         Add = getStage(ADD_FILE); // retrieve again
         Rm = getStage(RM_FILE);
@@ -697,7 +700,7 @@ public class Repository {
     /** Given a starting vertex, level-traverses the Commit tree
      *  and returns a map of each visited CommitId to its depth */
     private static Map<String, Integer> bfs(Commit v) {
-        Map<String, Integer> idToDepth = new HashMap<>();    // map for curBranch
+        Map<String, Integer> idToDepth = new TreeMap<>();    // map for curBranch
 
         Queue<Commit> q = new LinkedList<>();
         int depth = 0;

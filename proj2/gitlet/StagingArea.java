@@ -3,7 +3,7 @@ package gitlet;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.HashMap;
+import java.util.TreeMap;
 import java.util.List;
 import java.util.Set;
 
@@ -21,7 +21,7 @@ public class StagingArea implements Serializable {
     public final String areaName;
     /** Mapping of plain file name to blob id in the staging area.
      *  CANNOT be accessed from without */
-    private HashMap<String, String> nameToBlob; // plainName to Blob hash id
+    private TreeMap<String, String> nameToBlob; // plainName to Blob hash id
 
 
 
@@ -30,7 +30,7 @@ public class StagingArea implements Serializable {
      */
     public StagingArea(String areaName, File AREA_FILE) {
         this.areaName = areaName;
-        this.nameToBlob = new HashMap<>();
+        this.nameToBlob = new TreeMap<>();
         this.AREA_FILE = AREA_FILE;
     }
 
@@ -79,7 +79,7 @@ public class StagingArea implements Serializable {
 
     /** Removes all mappings in the staged area for addition. */
     public void clean() {
-        this.nameToBlob = new HashMap<String, String>();
+        this.nameToBlob = new TreeMap<String, String>();
         writeObject(this.AREA_FILE, this);
     }
 
@@ -99,9 +99,9 @@ public class StagingArea implements Serializable {
     }
 
     /** Returns a copy of the plain name to id map */
-    public HashMap<String, String> getAreaMap() {
+    public TreeMap<String, String> getAreaMap() {
         // COPY
-        return new HashMap<>(nameToBlob);
+        return new TreeMap<>(nameToBlob);
     }
 
     /** Returns a set of all file names currently in the staging area

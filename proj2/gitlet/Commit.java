@@ -26,7 +26,7 @@ public class Commit implements Serializable {
 
     /** Mapping of `filenames` to corresponding `Blob` objects.
      *  Example of mapping: {"hello.txt": "someSHA-1Hash"} */
-    private HashMap<String, String> nameToBlob; //
+    private TreeMap<String, String> nameToBlob; //
     /** Parent of the current Commit: a sha-1 hash. */
     private final List<String> parents;
     private final String id;
@@ -37,7 +37,7 @@ public class Commit implements Serializable {
      * @param parents Parent of the Commit instance.
      * @param timestamp Timestamp of the Commit instance.
      */
-    public Commit(String msg, List<String> parents, HashMap<String, String> nameToBlob, Date... timestamp) {
+    public Commit(String msg, List<String> parents, TreeMap<String, String> nameToBlob, Date... timestamp) {
         // metadata
         this.message = msg;
         this.timestamp = timestamp[0];
@@ -192,9 +192,9 @@ public class Commit implements Serializable {
 
     /** Returns a COPY of the plainName to blob hashmap of current commit.
      * Example of mapping: {"hello.txt": "someSHA-1Hash"} */
-    public HashMap<String, String> getMap() {
+    public TreeMap<String, String> getMap() {
         // !: COPY
-        return new HashMap<>(this.nameToBlob);
+        return new TreeMap<>(this.nameToBlob);
     }
 
 }

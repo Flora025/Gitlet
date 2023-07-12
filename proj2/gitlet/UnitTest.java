@@ -5,7 +5,7 @@
 //
 //import java.io.File;
 //import java.io.IOException;
-//import java.util.HashMap;
+//import java.util.TreeMap;
 //
 //import static gitlet.Utils.*;
 //
@@ -58,7 +58,7 @@
 //        File fp = join(Blob.BLOB_FOLDER, sha1("hello.txt")); // note: there's no content so just hash the name
 //        Assert.assertTrue(fp.exists());
 //        // 2. Check if the nameToHash map has been saved into the staging area [Add]
-//        HashMap<String, String> expected = new HashMap<>();
+//        TreeMap<String, String> expected = new TreeMap<>();
 //        String text = "hello.txt";
 //        expected.put(text, sha1(text));
 //        Assert.assertEquals(expected, readObject(Repository.ADD_FILE, StagingArea.class).getAreaMap());
