@@ -1,6 +1,8 @@
 # Gitlet
 
-A version-control system that implements a subset of basic features of Git.
+A version-control system that implements a subset of basic features of [Git](https://git-scm.com/).
+
+<img src="./assets/image-20230728144509093.png#center" alt=".gitlet directory" style="border-radius: 8px; zoom: 50%;" />
 
 ## **Catalog**
 
@@ -30,13 +32,13 @@ java gitlet.Main commit "add new.txt"
 
 A concise description of all commands available in Gitlet is as follows:
 
-### init
+### 𐀴 init
 
 ***Usage*:** `java gitlet.Main init`
 
 Creates a version-control folder `.gitlet` in the current working directory.
 
-### add
+### 𐀴 add
 
 ***Usage*:** `java gitlet.Main add [file name]`
 
@@ -46,7 +48,7 @@ Adds a copy of the file as it currently exists to the staging area.
 
 In Gitlet, only one file may be added at a time.
 
-### commit
+### 𐀴 commit
 
 ***Usage*:** `java gitlet.Main commit [message]`
 
@@ -56,13 +58,13 @@ Saves a snapshot of tracked files in the current commit and staging area so they
 
 In Gitlet, commits carry less metadata compared with real git.
 
-### rm
+### 𐀴 rm
 
 ***Usage*:** `java gitlet.Main rm [file name]`
 
 Removes a file from the current working directory.
 
-### log
+### 𐀴 log
 
 ***Usage*:** `java gitlet.Main log`
 
@@ -70,13 +72,13 @@ Displays all commit information starting at HEAD in reverse chronological order.
 
 Similar to `git log --first-parent`.
 
-### global-log
+### 𐀴 global-log
 
 ***Usage*:** `java gitlet.Main global-log`
 
 Lists all commits ever made.
 
-### find
+### 𐀴 find
 
 ***Usage*:** `java gitlet.Main find [commit message]`
 
@@ -84,13 +86,13 @@ Prints out the ids of all commits that have the given commit message, one per li
 
 ***Differences from Git*:** Doesn’t exist in real git.
 
-### status
+### 𐀴 status
 
 ***Usage*:** `java gitlet.Main status`
 
 Displays what branches currently exist, and marks the current branch with a *. Also displays what files have been staged for addition or removal.
 
-### checkout
+### 𐀴 checkout
 
 ***Usages*:**
 
@@ -104,13 +106,13 @@ Depending on the given args, checks out a file in HEAD commit, a file specified 
 
 Real git does not clear the staging area and stages the file that is checked out. 
 
-### branch
+### 𐀴 branch
 
 ***Usage*:** `java gitlet.Main branch [branch name]`
 
 Creates a new branch with the given name, and points it at the current head commit.
 
-### reset
+### 𐀴 reset
 
 ***Usage*:** `java gitlet.Main reset [commit id]`
 
@@ -120,7 +122,7 @@ Checks out all the files tracked by the given commit.
 
 This command is closest to using the `--hard` option, as in `git reset --hard [commit id]`.
 
-### merge
+### 𐀴 merge
 
 ***Usage*:** `java gitlet.Main merge [branch name]`
 
